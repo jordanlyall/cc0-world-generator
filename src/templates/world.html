@@ -346,6 +346,48 @@
     /* Visual language */
     .visual-block { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
 
+    /* ── JSON syntax highlighting ── */
+    .json-key  { color: #a78bfa; }
+    .json-str  { color: #86efac; }
+    .json-num  { color: #fbbf24; }
+    .json-bool { color: #f87171; }
+    .json-null { color: #94a3b8; }
+
+    /* ── Raw manifest JSON toggle ── */
+    .raw-json-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 1.25rem; background: none; border: none; padding: 0;
+      cursor: pointer; font-family: var(--mono); font-size: 0.68rem;
+      color: var(--muted); opacity: 0.6; transition: opacity 0.15s, color 0.15s;
+    }
+    .raw-json-toggle:hover { opacity: 1; color: var(--accent); }
+    .raw-json-toggle .rj-icon { font-size: 0.5rem; transition: transform 0.2s; }
+    .raw-json-toggle.open .rj-icon { transform: rotate(90deg); }
+    .raw-json-viewer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .raw-json-viewer.open { max-height: 1200px; }
+    .raw-json-wrap {
+      margin-top: 0.75rem;
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .raw-json-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.35rem 0.75rem; border-bottom: 1px solid var(--border);
+      font-family: var(--mono); font-size: 0.6rem; color: #555;
+    }
+    .raw-json-copy {
+      background: transparent; border: 1px solid #333; color: var(--muted);
+      padding: 0.2rem 0.5rem; font-family: var(--mono); font-size: 0.6rem;
+      border-radius: 3px; cursor: pointer; transition: color 0.15s, border-color 0.15s;
+    }
+    .raw-json-copy:hover { color: var(--text); border-color: var(--accent); }
+    .raw-json-pre {
+      padding: 0.75rem; font-family: var(--mono); font-size: 0.65rem;
+      color: #c0c0c0; white-space: pre; overflow-x: auto; line-height: 1.55;
+    }
+
     /* ── Share strip ── */
     .share-strip {
       border-top: 1px solid var(--border);
@@ -449,6 +491,23 @@
     );
   }
 
+  // ── JSON syntax highlighter ──────────────────────────────────────────────────
+  function syntaxHighlight(json) {
+    return json
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) return '<span class="json-key">' + match + '</span>';
+          return '<span class="json-str">' + match + '</span>';
+        }
+        if (/true|false/.test(match)) return '<span class="json-bool">' + match + '</span>';
+        if (/null/.test(match))       return '<span class="json-null">' + match + '</span>';
+        return '<span class="json-num">' + match + '</span>';
+      });
+  }
+
   function renderWorld(data) {
     const wb = data.world_bible || {};
     const cm = data.compliance_manifest || {};
@@ -528,6 +587,39 @@
       rfSection.appendChild(list);
     }
     manifest.appendChild(rfSection);
+
+    // ── Raw JSON toggle (developer view) ──
+    const rawJson = JSON.stringify(data, null, 2);
+    const rawToggle = el('button', { class: 'raw-json-toggle' });
+    rawToggle.appendChild(el('span', { class: 'rj-icon' }, t('▶')));
+    rawToggle.appendChild(document.createTextNode('\u00a0View raw manifest JSON'));
+    const rawViewer = el('div', { class: 'raw-json-viewer' });
+    const rawWrap   = el('div', { class: 'raw-json-wrap' });
+    const rawBar    = el('div', { class: 'raw-json-toolbar' });
+    rawBar.appendChild(el('span', null, t('world.json')));
+    const rawCopy = el('button', { class: 'raw-json-copy' }, t('Copy'));
+    rawCopy.addEventListener('click', e => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(rawJson).then(() => {
+        rawCopy.textContent = 'Copied!';
+        setTimeout(() => { rawCopy.textContent = 'Copy'; }, 2000);
+      });
+    });
+    rawBar.appendChild(rawCopy);
+    rawWrap.appendChild(rawBar);
+    const rawPre = el('div', { class: 'raw-json-pre' });
+    rawPre.innerHTML = syntaxHighlight(rawJson);
+    rawWrap.appendChild(rawPre);
+    rawViewer.appendChild(rawWrap);
+    rawToggle.addEventListener('click', () => {
+      const isOpen = rawViewer.classList.contains('open');
+      rawViewer.classList.toggle('open', !isOpen);
+      rawToggle.classList.toggle('open', !isOpen);
+      rawToggle.querySelector('.rj-icon').textContent = isOpen ? '▶' : '▼';
+    });
+    manifest.appendChild(rawToggle);
+    manifest.appendChild(rawViewer);
+
     frag.appendChild(manifest);
 
     // ── Tone ──

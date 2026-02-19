@@ -446,6 +446,77 @@
     }
     .world-card-attribution a:hover { border-color: var(--muted); opacity: 1; }
 
+    /* ── JSON syntax highlighting ── */
+    .json-key   { color: #a78bfa; }
+    .json-str   { color: #86efac; }
+    .json-num   { color: #fbbf24; }
+    .json-bool  { color: #f87171; }
+    .json-null  { color: #94a3b8; }
+
+    /* ── MCP config block ── */
+    .mcp-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 0.75rem;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      opacity: 0.7;
+      transition: opacity 0.15s, color 0.15s;
+    }
+    .mcp-toggle:hover { opacity: 1; color: var(--accent); }
+    .mcp-toggle .m-icon { font-size: 0.55rem; transition: transform 0.2s; }
+    .mcp-toggle.open .m-icon { transform: rotate(90deg); }
+    .mcp-viewer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+    .mcp-viewer.open { max-height: 500px; }
+    .mcp-json-wrap {
+      margin-top: 0.6rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .mcp-json-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.35rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: #555;
+    }
+    .mcp-copy-btn {
+      background: transparent;
+      border: 1px solid #333;
+      color: var(--muted);
+      padding: 0.2rem 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .mcp-copy-btn:hover { color: var(--text); border-color: var(--accent); }
+    .mcp-json {
+      padding: 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: #c0c0c0;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.55;
+    }
+
     /* ── Inline manifest viewer ── */
     .manifest-toggle {
       display: inline-flex;
@@ -635,6 +706,24 @@
 </footer>
 
 <script>
+  // ── JSON syntax highlighter ───────────────────────────────────────────────────
+  function syntaxHighlight(json) {
+    // Escape HTML entities, then wrap tokens in colored spans
+    return json
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) return '<span class="json-key">' + match + '</span>';
+          return '<span class="json-str">' + match + '</span>';
+        }
+        if (/true|false/.test(match)) return '<span class="json-bool">' + match + '</span>';
+        if (/null/.test(match)) return '<span class="json-null">' + match + '</span>';
+        return '<span class="json-num">' + match + '</span>';
+      });
+  }
+
   // ── DOM factory ──────────────────────────────────────────────────────────────
   function el(tag, props, ...children) {
     const node = document.createElement(tag);
@@ -703,11 +792,49 @@
         : el('a', {'class': 'path-cta', href: '/mint'}, t('Connect wallet →'))
     );
 
-    const agentPath = el('div', {'class': 'mint-path'},
-      el('h3', null, t('AI AGENT')),
-      el('p', null, t('Call worldkit_mint via MCP. Your token bound account is auto-deployed. Free MCP access activates immediately.')),
-      el('a', {'class': 'path-cta', href: '/mint'}, t('View MCP config →'))
-    );
+    const MCP_CONFIG = JSON.stringify({
+      mcpServers: {
+        worldkit: {
+          url: 'https://worldkit.ai/mcp',
+          tools: ['cc0_generate_world', 'worldkit_mint']
+        }
+      }
+    }, null, 2);
+
+    const mcpToggle = el('button', {'class': 'mcp-toggle'});
+    const mcpIcon = el('span', {'class': 'm-icon'}, t('▶'));
+    mcpToggle.appendChild(mcpIcon);
+    mcpToggle.appendChild(document.createTextNode('\u00a0View MCP config'));
+    const mcpViewer = el('div', {'class': 'mcp-viewer'});
+    const mcpWrap = el('div', {'class': 'mcp-json-wrap'});
+    const toolbar = el('div', {'class': 'mcp-json-toolbar'});
+    toolbar.appendChild(el('span', null, t('mcp.json')));
+    const copyBtn = el('button', {'class': 'mcp-copy-btn'}, t('Copy'));
+    copyBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(MCP_CONFIG).then(() => {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+      });
+    });
+    toolbar.appendChild(copyBtn);
+    mcpWrap.appendChild(toolbar);
+    const mcpPre = el('div', {'class': 'mcp-json'});
+    mcpPre.innerHTML = syntaxHighlight(MCP_CONFIG);
+    mcpWrap.appendChild(mcpPre);
+    mcpViewer.appendChild(mcpWrap);
+    mcpToggle.addEventListener('click', () => {
+      const isOpen = mcpViewer.classList.contains('open');
+      mcpViewer.classList.toggle('open', !isOpen);
+      mcpToggle.classList.toggle('open', !isOpen);
+      mcpIcon.textContent = isOpen ? '▶' : '▼';
+    });
+
+    const agentPath = el('div', {'class': 'mint-path'});
+    agentPath.appendChild(el('h3', null, t('AI AGENT')));
+    agentPath.appendChild(el('p', null, t('Call worldkit_mint via MCP. Your token bound account is auto-deployed. Free MCP access activates immediately.')));
+    agentPath.appendChild(mcpToggle);
+    agentPath.appendChild(mcpViewer);
 
     const paths = el('div', {'class': 'mint-paths'});
     paths.appendChild(humanPath);
@@ -784,7 +911,7 @@
     dogViewer.className = 'manifest-viewer';
     const dogPre = document.createElement('div');
     dogPre.className = 'manifest-json';
-    dogPre.textContent = JSON.stringify(murkmManifest, null, 2);
+    dogPre.innerHTML = syntaxHighlight(JSON.stringify(murkmManifest, null, 2));
     dogViewer.appendChild(dogPre);
 
     dogToggle.addEventListener('click', e => {
@@ -913,7 +1040,7 @@
       viewer.className = 'manifest-viewer';
       const pre = document.createElement('div');
       pre.className = 'manifest-json';
-      pre.textContent = JSON.stringify(manifestData, null, 2);
+      pre.innerHTML = syntaxHighlight(JSON.stringify(manifestData, null, 2));
       viewer.appendChild(pre);
 
       toggle.addEventListener('click', e => {
