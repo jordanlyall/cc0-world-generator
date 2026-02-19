@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CC0 World Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #666;
+      --accent: #7c3aed;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); letter-spacing: 0.05em; }
+    .logo span { color: var(--accent); }
+
+    main {
+      flex: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 4rem 2rem 2rem;
+      width: 100%;
+    }
+
+    .headline { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; letter-spacing: -0.02em; }
+    .subline { color: var(--muted); font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.5; }
+    .refusal-line { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); margin-bottom: 2.5rem; }
+
+    .generate-form { margin-bottom: 3rem; }
+
+    .input-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+
+    #prompt-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #prompt-input:focus { border-color: var(--accent); }
+    #prompt-input::placeholder { color: var(--muted); }
+
+    #generate-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    #generate-btn:hover:not(:disabled) { opacity: 0.85; }
+    #generate-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .char-count { font-size: 0.75rem; color: var(--muted); text-align: right; }
+    .char-count.over { color: var(--red); }
+
+    #status-bar {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+      font-size: 0.875rem;
+    }
+    .status-row { display: flex; align-items: center; gap: 0.625rem; }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status-text { color: var(--muted); }
+
+    #refusal-banner {
+      display: none;
+      background: #1e1b4b;
+      border: 1px solid #4c1d95;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      color: #a78bfa;
+    }
+
+    .examples { margin-bottom: 1rem; }
+    .examples-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.625rem; }
+    .example-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .chip:hover { color: var(--text); border-color: var(--accent); }
+
+    .section-title { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+
+    #worlds-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .world-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: border-color 0.15s;
+    }
+    .world-card:hover { border-color: var(--accent); }
+
+    .world-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.375rem; }
+    .world-title { font-size: 0.925rem; font-weight: 600; color: var(--text); }
+
+    .confidence-badge {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .confidence-high { background: #14532d; color: var(--green); }
+    .confidence-medium { background: #422006; color: var(--yellow); }
+    .confidence-low { background: #450a0a; color: var(--red); }
+    .confidence-refusal { background: #1e1b4b; color: #a78bfa; }
+
+    .world-logline { font-size: 0.8rem; color: var(--muted); line-height: 1.45; }
+    .world-prompt { font-family: var(--mono); font-size: 0.72rem; color: #444; margin-top: 0.5rem; }
+
+    .empty-state { text-align: center; padding: 3rem 0; color: var(--muted); font-size: 0.875rem; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>CC0</span> World Generator</div>
+</header>
+
+<main>
+  <h1 class="headline">Build Worlds Agents Can Ship.</h1>
+  <p class="subline">A CC0-only world generator with audit-ready provenance and risk-scored sources.</p>
+  <p class="refusal-line">Refusal isn't failure. It's how the system stays honest.</p>
+
+  <form class="generate-form" id="form">
+    <div class="input-row">
+      <input
+        type="text"
+        id="prompt-input"
+        placeholder="noir detective city, ancient gods in a tech dystopia, space opera western..."
+        maxlength="300"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="submit" id="generate-btn">Generate</button>
+    </div>
+    <div class="char-count"><span id="char-count">0</span> / 300</div>
+  </form>
+
+  <div id="refusal-banner">
+    <strong>Refusal logged.</strong>
+    This prompt falls outside the CC0 corpus or triggered a compliance conflict.
+    Refusals drive the roadmap.
+  </div>
+
+  <div id="status-bar">
+    <div class="status-row">
+      <div class="spinner"></div>
+      <span class="status-text" id="status-text">Generating world...</span>
+    </div>
+  </div>
+
+  <div class="examples">
+    <div class="examples-label">Try these</div>
+    <div class="example-chips">
+      <button type="button" class="chip" data-prompt="noir detective city">noir detective city</button>
+      <button type="button" class="chip" data-prompt="ancient gods in a tech dystopia">ancient gods in a tech dystopia</button>
+      <button type="button" class="chip" data-prompt="ocean-punk salvage crews">ocean-punk salvage crews</button>
+      <button type="button" class="chip" data-prompt="haunted carnival on the moon">haunted carnival on the moon</button>
+      <button type="button" class="chip" data-prompt="post-collapse desert republic">post-collapse desert republic</button>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;">
+    <div class="section-title">Generated Worlds</div>
+    <div id="worlds-list">
+      <div class="empty-state">Loading worlds...</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>Five CC0 universes. Manifest-first. Corpus cap is sacred.</span>
+  <a href="https://github.com/jordanlyall" target="_blank" rel="noopener">jordanlyall</a>
+</footer>
+
+<script>
+  const input = document.getElementById('prompt-input');
+  const charCount = document.getElementById('char-count');
+  const btn = document.getElementById('generate-btn');
+  const statusBar = document.getElementById('status-bar');
+  const statusText = document.getElementById('status-text');
+  const refusalBanner = document.getElementById('refusal-banner');
+
+  // Char counter
+  input.addEventListener('input', () => {
+    const n = input.value.length;
+    charCount.textContent = n;
+    charCount.parentElement.classList.toggle('over', n > 300);
+    btn.disabled = n === 0 || n > 300;
+  });
+
+  // Example chips — use data attribute, no inline handler
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      input.value = chip.dataset.prompt;
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+    });
+  });
+
+  // Form submit
+  document.getElementById('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const prompt = input.value.trim();
+    if (!prompt || prompt.length > 300) return;
+
+    btn.disabled = true;
+    input.disabled = true;
+    refusalBanner.style.display = 'none';
+    statusBar.style.display = 'block';
+    statusText.textContent = 'Starting generation...';
+
+    try {
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(err.detail || 'Generation failed');
+      }
+
+      const { job_id } = await res.json();
+      await pollJob(job_id);
+    } catch (err) {
+      resetForm();
+      showError(err.message);
+    }
+  });
+
+  function resetForm() {
+    statusBar.style.display = 'none';
+    btn.disabled = false;
+    input.disabled = false;
+  }
+
+  function showError(msg) {
+    const el = document.createElement('p');
+    el.style.cssText = 'color: #ef4444; font-size: 0.8rem; margin-top: 0.5rem;';
+    el.textContent = 'Error: ' + msg;
+    document.getElementById('form').appendChild(el);
+    setTimeout(() => el.remove(), 6000);
+  }
+
+  async function pollJob(job_id) {
+    const messages = [
+      'Consulting the corpus...',
+      'Building world bible...',
+      'Checking provenance...',
+      'Scoring compliance...',
+      'Finalizing manifest...',
+    ];
+    let tick = 0;
+
+    return new Promise((resolve) => {
+      const interval = setInterval(async () => {
+        statusText.textContent = messages[tick % messages.length];
+        tick++;
+
+        try {
+          const res = await fetch('/status/' + encodeURIComponent(job_id));
+          if (!res.ok) return; // keep polling
+          const job = await res.json();
+
+          if (job.status === 'done') {
+            clearInterval(interval);
+            resolve();
+            if (job.is_refusal) {
+              resetForm();
+              refusalBanner.style.display = 'block';
+              await loadWorlds();
+            } else {
+              window.location.href = '/world/' + encodeURIComponent(job.world_id);
+            }
+          } else if (job.status === 'error') {
+            clearInterval(interval);
+            resolve();
+            resetForm();
+            showError(job.error || 'Generation failed');
+          }
+        } catch (_) {
+          // Network hiccup — keep polling
+        }
+      }, 3000);
+    });
+  }
+
+  // Worlds gallery — build cards via DOM methods (no innerHTML with user data)
+  async function loadWorlds() {
+    const container = document.getElementById('worlds-list');
+    container.textContent = '';
+
+    try {
+      const res = await fetch('/worlds');
+      if (!res.ok) throw new Error('fetch failed');
+      const worlds = await res.json();
+
+      if (worlds.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'No worlds generated yet. Try the prompt above.';
+        container.appendChild(empty);
+        return;
+      }
+
+      for (const w of worlds) {
+        container.appendChild(buildWorldCard(w));
+      }
+    } catch (_) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'Could not load worlds.';
+      container.appendChild(empty);
+    }
+  }
+
+  function buildWorldCard(w) {
+    const isRefusal = w.is_refusal;
+    const card = isRefusal
+      ? document.createElement('div')
+      : document.createElement('a');
+
+    card.className = 'world-card';
+    if (!isRefusal) {
+      card.href = '/world/' + encodeURIComponent(w.id);
+    } else {
+      card.style.cursor = 'default';
+      card.style.opacity = '0.6';
+    }
+
+    // Top row
+    const top = document.createElement('div');
+    top.className = 'world-card-top';
+
+    const titleEl = document.createElement('span');
+    titleEl.className = 'world-title';
+    titleEl.textContent = isRefusal ? 'Refusal' : (w.title || w.id);
+
+    const badge = document.createElement('span');
+    badge.className = 'confidence-badge';
+    if (isRefusal) {
+      badge.classList.add('confidence-refusal');
+      badge.textContent = 'refused';
+    } else {
+      const conf = w.commercial_confidence || 'low';
+      badge.classList.add('confidence-' + conf);
+      badge.textContent = conf;
+    }
+
+    top.appendChild(titleEl);
+    top.appendChild(badge);
+    card.appendChild(top);
+
+    // Logline / reason
+    const desc = document.createElement('div');
+    desc.className = 'world-logline';
+    desc.textContent = isRefusal ? (w.reason || 'Outside CC0 corpus.') : (w.logline || '');
+    card.appendChild(desc);
+
+    // Prompt
+    if (w.prompt) {
+      const prompt = document.createElement('div');
+      prompt.className = 'world-prompt';
+      prompt.textContent = '\u201c' + w.prompt + '\u201d';
+      card.appendChild(prompt);
+    }
+
+    return card;
+  }
+
+  // Init
+  btn.disabled = true;
+  loadWorlds();
+</script>
+</body>
+</html>

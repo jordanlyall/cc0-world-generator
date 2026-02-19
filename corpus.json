@@ -1,0 +1,49 @@
+{
+  "corpus": [
+    {
+      "id": "univ:nouns",
+      "name": "Nouns",
+      "kind": "nft_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:nouns:2026-02-18",
+      "risk_flags": ["risk:trademark:nouns:medium"],
+      "notes": "Glasses + boxy head visual identity. Trademark risk is medium — use visual primitives, not the brand name as an in-world proper noun."
+    },
+    {
+      "id": "univ:cryptoadz",
+      "name": "CrypToadz",
+      "kind": "nft_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:cryptoadz:2026-02-18",
+      "risk_flags": ["risk:trademark:cryptoadz:medium", "risk:meme_derivative:pepe:medium"],
+      "notes": "Amphibian humanoids, swamp aesthetic, outsider-trickster archetype. Pepe adjacency — never reference the meme directly."
+    },
+    {
+      "id": "univ:mfers",
+      "name": "mfers",
+      "kind": "nft_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:mfers:2026-02-18",
+      "risk_flags": ["risk:meme_derivative:stick_figure:medium", "risk:governance:sartoshi_exit:medium"],
+      "notes": "Stick-figure humanoids, skateboard/cig aesthetic, ironic-outsider tone. Governance ambiguity: Sartoshi's CC0 declaration predates his exit. Medium confidence, not high."
+    },
+    {
+      "id": "univ:myth",
+      "name": "Bulfinch's Mythology (1855 edition)",
+      "kind": "public_domain_corpus",
+      "license": "public_domain",
+      "evidence_id": "evid:pd:bulfinch:1855",
+      "risk_flags": [],
+      "notes": "Author died 1867. 1855 publication. Globally public domain. Always cite the specific 1855 Bulfinch edition, not 'mythology in general.' Greek, Roman, Norse, Arthurian material all covered."
+    },
+    {
+      "id": "univ:racc00ns",
+      "name": "racc00ns",
+      "kind": "original_creation",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:racc00ns:2026-02-18",
+      "risk_flags": [],
+      "notes": "Self-declared CC0 by Jordan Lyall (copyright holder). Raccoon-inspired characters: masked faces, foragers, scavengers, nocturnal tricksters. Name encodes CC0 in the double-zero. High confidence — no ambiguity."
+    }
+  ]
+}

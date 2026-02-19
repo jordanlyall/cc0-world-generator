@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "captured_at": "2026-02-18T22:34:30Z",
+    "script_version": "1.0",
+    "status": "needs_manual_review",
+    "todo": [
+      "Verify archive snapshot loaded and update its hash",
+      "Take and save a local screenshot"
+    ]
+  },
+  "universe": {
+    "id": "univ:racc00ns",
+    "name": "racc00ns",
+    "kind": "original_creation",
+    "canonical_refs": [
+      {
+        "type": "url",
+        "value": "https://gist.github.com/jordanlyall/bc48c05a52612fa8b78593c82eae227e"
+      }
+    ],
+    "license": {
+      "type": "CC0-1.0",
+      "evidence_id": "evid:cc0:racc00ns:2026-02-18"
+    },
+    "risk_flags": [],
+    "cmi_present": false,
+    "ai_policy_signals": []
+  },
+  "evidence": {
+    "id": "evid:cc0:racc00ns:2026-02-18",
+    "type": "license_declaration",
+    "claim": "Universe univ:racc00ns is licensed under CC0-1.0",
+    "source": {
+      "uri": "https://gist.github.com/jordanlyall/bc48c05a52612fa8b78593c82eae227e",
+      "retrieved_at": "2026-02-18T22:34:30Z",
+      "method": "automated_fetch",
+      "content_hash_sha256": "b6ba06ce536d5f24c569dc5954a1f45dacb33bbea75128ad7a1a314eb8e72209",
+      "mime_type": "text/html"
+    },
+    "attestation": {
+      "collector": "Jordan Lyall",
+      "confidence": 1.0,
+      "notes": "Declarant is the copyright holder (Jordan Lyall). CC0 1.0 Universal dedication appears in the Gist body under the 'Declaration' heading. No ambiguity — this is a self-declaration, not an interpretation of a third-party statement. The Gist is public, timestamped, and linked to the jordanlyall GitHub account."
+    },
+    "snapshots": [
+      {
+        "type": "web_archive",
+        "uri": "https://web.archive.org/web/20260218000000*/https://gist.github.com/jordanlyall/bc48c05a52612fa8b78593c82eae227e",
+        "retrieved_at": "2026-02-18T22:34:30Z",
+        "content_hash_sha256": "15ccaf0e098c9509a7b852d8faf9eb4e5e137b3897d2b1c39aa32b1abb75980d"
+      }
+    ]
+  }
+}

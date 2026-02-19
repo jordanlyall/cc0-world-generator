@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "captured_at": "2026-02-18T22:14:59Z",
+    "script_version": "1.0",
+    "status": "complete"
+  },
+  "universe": {
+    "id": "univ:mfers",
+    "name": "Mfers",
+    "kind": "nft_collection",
+    "canonical_refs": [
+      {
+        "type": "url",
+        "value": "https://mfers.io"
+      },
+      {
+        "type": "contract",
+        "value": "0x79FCDEF22feeD20eDDacbB2587640e45491b757f"
+      }
+    ],
+    "license": {
+      "type": "CC0-1.0",
+      "evidence_id": "evid:cc0:mfers:2026-02-18"
+    },
+    "risk_flags": ["risk:trademark:mfers:meme_derivative", "risk:governance:mfers:sartoshi_departure"],
+    "cmi_present": false,
+    "ai_policy_signals": []
+  },
+  "evidence": {
+    "id": "evid:cc0:mfers:2026-02-18",
+    "type": "license_declaration",
+    "claim": "Universe univ:mfers is licensed under CC0-1.0",
+    "source": {
+      "uri": "https://mfers.io",
+      "retrieved_at": "2026-02-18T22:14:59Z",
+      "method": "automated_fetch",
+      "content_hash_sha256": "6dc9c7fc93bb488bb0520a6c780a8d3c0fb5486a4711aca49b4c53fac7393023",
+      "mime_type": "text/html"
+    },
+    "attestation": {
+      "collector": "Jordan Lyall",
+      "confidence": 0.55,
+      "notes": "CC0 declared by Sartoshi (original creator) via Twitter and project site prior to his public exit from the project in May 2022. The declaration preceded his departure, creating governance ambiguity: no successor has revoked it, but the project now lacks an active rights-holder who can reaffirm. Risk flag documented explicitly per project invariant (risk flags are never suppressed). Meme derivative risk: mfers artwork derives visual style from the 'feels guy' / 'Pepe' meme tradition — medium risk. Confidence capped at medium (0.55) per project file specification."
+    },
+    "snapshots": [
+      {
+        "type": "web_archive",
+        "uri": "https://web.archive.org/web/20260218000000*/https://mfers.io",
+        "retrieved_at": "2026-02-18T22:14:59Z",
+        "content_hash_sha256": "decc26b703a27a15f6e0ed6161fd38ab9c5f42bbedf1c18ff0277176f0df179c"
+      }
+    ],
+    "contract_address": "0x79FCDEF22feeD20eDDacbB2587640e45491b757f"
+  }
+}

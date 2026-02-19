@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "captured_at": "2026-02-18T22:15:15Z",
+    "script_version": "1.0",
+    "status": "complete"
+  },
+  "universe": {
+    "id": "univ:bulfinch",
+    "name": "Bulfinch's Mythology (1855)",
+    "kind": "public_domain_corpus",
+    "canonical_refs": [
+      {
+        "type": "url",
+        "value": "https://www.gutenberg.org/ebooks/4928"
+      }
+    ],
+    "license": {
+      "type": "public_domain",
+      "evidence_id": "evid:cc0:bulfinch:2026-02-18"
+    },
+    "risk_flags": ["risk:jurisdiction:bulfinch:edition_specificity"],
+    "cmi_present": false,
+    "ai_policy_signals": []
+  },
+  "evidence": {
+    "id": "evid:cc0:bulfinch:2026-02-18",
+    "type": "public_domain_declaration",
+    "claim": "Bulfinch's Mythology (1855 edition, Thomas Bulfinch) is in the public domain globally. Author died 1867; 1855 US publication is PD in all v0 jurisdictions. Hosted as Project Gutenberg Ebook #4928.",
+    "source": {
+      "uri": "https://www.gutenberg.org/ebooks/4928",
+      "retrieved_at": "2026-02-18T22:15:15Z",
+      "method": "automated_fetch",
+      "content_hash_sha256": "124bb3145b177bad06d190038175354d0d9c86be3bb74a4ae9f5f6ddbf687cb0",
+      "mime_type": "text/html"
+    },
+    "attestation": {
+      "collector": "Jordan Lyall",
+      "confidence": 0.9,
+      "notes": "Public domain via author death + publication date. Thomas Bulfinch died 1867; 'Bulfinch's Mythology' first published 1855. Globally PD in all v0 jurisdictions (US, EU, AU). Source cited is Project Gutenberg Ebook #4928 — must cite this specific 1855 edition in world outputs, not 'mythology in general'. Project Gutenberg license applies to their digitization effort only, not the underlying text. Medium jurisdiction risk flag for sloppy citation; none for the underlying text."
+    },
+    "snapshots": [
+      {
+        "type": "web_archive",
+        "uri": "https://web.archive.org/web/20260218000000*/https://www.gutenberg.org/ebooks/4928",
+        "retrieved_at": "2026-02-18T22:15:15Z",
+        "content_hash_sha256": "aa174bf27751e4c39a746705a825cc6be831f4b7f9497e7a1efbc1e8b1de37f5"
+      }
+    ]
+  }
+}

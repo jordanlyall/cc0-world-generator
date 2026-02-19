@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "captured_at": "2026-02-18T22:14:43Z",
+    "script_version": "1.0",
+    "status": "complete"
+  },
+  "universe": {
+    "id": "univ:cryptoadz",
+    "name": "Cryptoadz",
+    "kind": "nft_collection",
+    "canonical_refs": [
+      {
+        "type": "url",
+        "value": "https://www.cryptoadz.io"
+      },
+      {
+        "type": "contract",
+        "value": "0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6"
+      }
+    ],
+    "license": {
+      "type": "CC0-1.0",
+      "evidence_id": "evid:cc0:cryptoadz:2026-02-18"
+    },
+    "risk_flags": ["risk:trademark:cryptoadz:base", "risk:trademark:cryptoadz:meme_derivative"],
+    "cmi_present": false,
+    "ai_policy_signals": []
+  },
+  "evidence": {
+    "id": "evid:cc0:cryptoadz:2026-02-18",
+    "type": "license_declaration",
+    "claim": "Universe univ:cryptoadz is licensed under CC0-1.0",
+    "source": {
+      "uri": "https://www.cryptoadz.io",
+      "retrieved_at": "2026-02-18T22:14:43Z",
+      "method": "automated_fetch",
+      "content_hash_sha256": "f73b1b4e7ebd777ce2b2e003bca268cc6e668c81eb3737f9fc3e433998905e83",
+      "mime_type": "text/html"
+    },
+    "attestation": {
+      "collector": "Jordan Lyall",
+      "confidence": 0.7,
+      "notes": "CC0 declared by Gremplin (original creator) on the project site and in the contract. The visual style derives from Pepe the Frog / 'feels guy' meme tradition — medium trademark/meme-derivative risk, as CrypToadz is a stylistic descendant of a meme with complex IP history. No active governance ambiguity; creator is known and declaration stands. Confidence set to medium-high (0.7) per project file specification ('Medium-High'). Risk flags: trademark (brand name) and meme derivative (Pepe adjacency)."
+    },
+    "snapshots": [
+      {
+        "type": "web_archive",
+        "uri": "https://web.archive.org/web/20260218000000*/https://www.cryptoadz.io",
+        "retrieved_at": "2026-02-18T22:14:43Z",
+        "content_hash_sha256": "bb094ef67f5529dfa9fcd7002193da8e4225cebf215e82845ac35f1c14d785a0"
+      }
+    ],
+    "contract_address": "0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6"
+  }
+}

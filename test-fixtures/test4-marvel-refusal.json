@@ -1,0 +1,10 @@
+{
+  "id": "refusal:2026-02-18:marvel-superhero-origin",
+  "prompt": "Marvel superhero origin story",
+  "generated_at": "2026-02-18T23:22:00Z",
+  "refusal": {
+    "reason": "The prompt requires Marvel IP — characters, iconography, narrative beats, and visual identity that are trademarked and/or copyrighted by Marvel Entertainment LLC. No Marvel IP exists in the v0 corpus. Generating a 'Marvel superhero origin story' using corpus visual primitives would produce derivative work confusingly similar to protected IP regardless of which corpus elements were used.",
+    "corpus_gap": "A licensed or CC0 superhero universe with established origin-story archetypes. No such universe exists in v0. Candidate for Phase 3 corpus expansion if a CC0-declared superhero collection can be identified and evidence-captured.",
+    "closest_possible": "A mythological hero-origin story using Bulfinch's Mythology (1855 edition) as the source universe — demigod parentage, supernatural trials, transformation. Combined with racc00ns trickster archetype for the protagonist and mfers ironic-outsider framing for the supporting cast. Would produce a legitimate hero-origin world with no Marvel adjacency and commercial_confidence: medium-high."
+  }
+}

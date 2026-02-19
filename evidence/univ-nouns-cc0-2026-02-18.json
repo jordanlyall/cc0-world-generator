@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "captured_at": "2026-02-18T22:07:34Z",
+    "script_version": "1.0",
+    "status": "complete"
+  },
+  "universe": {
+    "id": "univ:nouns",
+    "name": "Nouns",
+    "kind": "nft_collection",
+    "canonical_refs": [
+      {
+        "type": "url",
+        "value": "https://nouns.wtf"
+      },
+      {
+        "type": "contract",
+        "value": "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03"
+      }
+    ],
+    "license": {
+      "type": "CC0-1.0",
+      "evidence_id": "evid:cc0:nouns:2026-02-18"
+    },
+    "risk_flags": ["risk:trademark:nouns:base"],
+    "cmi_present": false,
+    "ai_policy_signals": []
+  },
+  "evidence": {
+    "id": "evid:cc0:nouns:2026-02-18",
+    "type": "license_declaration",
+    "claim": "Universe univ:nouns is licensed under CC0-1.0",
+    "source": {
+      "uri": "https://nouns.wtf/nounsdao",
+      "retrieved_at": "2026-02-18T22:07:34Z",
+      "method": "automated_fetch",
+      "content_hash_sha256": "5e13a7c7069091ad7bd02009cc590ed040851a680f45f9da357b68a80f741a7e",
+      "mime_type": "text/html"
+    },
+    "attestation": {
+      "collector": "Jordan Lyall",
+      "confidence": 0.8,
+      "notes": "CC0 declared explicitly by NounsDAO in the project's on-chain governance and site. License page at nouns.wtf confirms CC0-1.0. Trademark risk flag documented: the Nouns visual identity (square glasses, pixelated style) is strongly associated with the brand name 'Nouns' — medium trademark risk for commercial use that trades on the name or distinctive aesthetic. No governance ambiguity; DAO is active and well-established. Confidence high pending trademark flag resolution — capped at 0.8 per project file specification ('High (pending TM flag)')."
+    },
+    "snapshots": [
+      {
+        "type": "web_archive",
+        "uri": "https://web.archive.org/web/20260218000000*/https://nouns.wtf/nounsdao",
+        "retrieved_at": "2026-02-18T22:07:34Z",
+        "content_hash_sha256": "6704861f4203f27fa5ef7b91009f894decdcdb6ff30c9d71956b0d91b6638dc1"
+      }
+    ]
+  }
+}

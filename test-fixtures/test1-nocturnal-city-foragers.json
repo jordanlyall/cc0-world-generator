@@ -1,0 +1,111 @@
+{
+  "id": "world:2026-02-18:nocturnal-city-foragers",
+  "prompt": "nocturnal city foragers",
+  "generated_at": "2026-02-18T23:20:00Z",
+
+  "world_bible": {
+    "title": "The Drift",
+    "logline": "In a city that never sleeps, a masked underclass scavenges the wreckage of a civilization that forgot they existed.",
+    "setting": {
+      "description": "A dense, rain-slicked city of layered infrastructure — elevated walkways, flooded lower districts, flickering signage. The powerful live in the upper grid. Everything below belongs to the night. No names for neighborhoods; locals call the zones by what falls there: 'the glass level,' 'the rot,' 'the wire.'",
+      "tone": "Gritty optimism. The foragers aren't desperate — they're expert. The city is hostile but navigable. Survival is craft, not tragedy.",
+      "visual_language": "Masked faces, ringed eyes, hands always in motion. Boxy architectural forms. Pools of amber streetlight against deep blue shadow. Everything useful has been repurposed. Nothing is wasted."
+    },
+    "characters": [
+      {
+        "id": "char:cinder",
+        "name": "Cinder",
+        "archetype": "Trickster-Architect",
+        "visual": "Masked face with pale ringed markings around the eyes. Small, fast. Carries a worn satchel rebuilt from three different bags. Always has something in her hands.",
+        "role": "Lead forager. Knows every access point in the lower grid. Trades information as freely as salvage.",
+        "source_universe": "univ:racc00ns",
+        "evidence_id": "evid:cc0:racc00ns:2026-02-18"
+      },
+      {
+        "id": "char:hollow",
+        "name": "Hollow",
+        "archetype": "Reluctant Authority",
+        "visual": "Tall, boxy silhouette. Thick-framed optical lenses that catch light wrong in the dark. Moves like someone used to being watched.",
+        "role": "Former grid administrator gone underground. Knows the infrastructure from the other side. Uncomfortable with how good he's gotten at surviving outside it.",
+        "source_universe": "univ:nouns",
+        "evidence_id": "evid:cc0:nouns:2026-02-18"
+      },
+      {
+        "id": "char:silt",
+        "name": "Silt",
+        "archetype": "Outsider-Oracle",
+        "visual": "Amphibian cast to the face — wide-set eyes, damp skin that catches ambient light. Wears layered salvage clothing, always slightly wrong for the weather.",
+        "role": "Keeper of pre-collapse maps. Doesn't explain how he has them. Knows which lower tunnels flood and when.",
+        "source_universe": "univ:cryptoadz",
+        "evidence_id": "evid:cc0:cryptoadz:2026-02-18"
+      },
+      {
+        "id": "char:zero",
+        "name": "Zero",
+        "archetype": "Ironic Witness",
+        "visual": "Stick-figure lean. Cigarette. Hoodie with the hood always up. Skate-worn shoes. Never seems to carry anything but always has what you need.",
+        "role": "Information broker. Doesn't forage — facilitates. Everybody knows Zero. Nobody knows where Zero sleeps.",
+        "source_universe": "univ:mfers",
+        "evidence_id": "evid:cc0:mfers:2026-02-18"
+      }
+    ],
+    "factions": [
+      {
+        "id": "faction:the-drift",
+        "name": "The Drift",
+        "description": "Loose collective of nocturnal foragers operating in the lower city. No hierarchy — reputation is currency. Entry is earned by surviving a solo night in the rot.",
+        "visual": "Masked faces, ringed eyes. Mix of salvage and purpose-built gear. No uniform except the mark — a double ring around one eye, burned or drawn.",
+        "source_universe": "univ:racc00ns",
+        "evidence_id": "evid:cc0:racc00ns:2026-02-18"
+      },
+      {
+        "id": "faction:the-grid",
+        "name": "The Grid",
+        "description": "City administration and infrastructure managers. Control access to the upper levels and the power supply. Not villains — bureaucrats who stopped asking questions.",
+        "visual": "Boxy, formal. Thick optical lenses. Monochromatic color-coding by department. Always lit from above.",
+        "source_universe": "univ:nouns",
+        "evidence_id": "evid:cc0:nouns:2026-02-18"
+      },
+      {
+        "id": "faction:the-deep",
+        "name": "The Deep",
+        "description": "Tunnel-dwellers who predate the current city by at least two infrastructure generations. Amphibian affinity — comfortable in flooded zones. Trade in water rights and passage.",
+        "visual": "Damp, layered salvage. Wide eyes. Move in single file through tight spaces. Never fully dry.",
+        "source_universe": "univ:cryptoadz",
+        "evidence_id": "evid:cc0:cryptoadz:2026-02-18"
+      }
+    ],
+    "relationship_graph": [
+      { "from": "char:cinder", "to": "faction:the-drift", "relationship": "de facto leader, refuses the title" },
+      { "from": "char:hollow", "to": "faction:the-grid", "relationship": "former member, quietly hunted" },
+      { "from": "char:hollow", "to": "faction:the-drift", "relationship": "reluctant asset, not yet trusted" },
+      { "from": "char:silt", "to": "faction:the-deep", "relationship": "emissary, operates above ground more than most" },
+      { "from": "char:zero", "to": "faction:the-drift", "relationship": "adjacent — not a member, not an outsider" },
+      { "from": "faction:the-drift", "to": "faction:the-deep", "relationship": "uneasy alliance — water access for surface salvage" },
+      { "from": "faction:the-grid", "to": "faction:the-drift", "relationship": "official stance: they don't exist" }
+    ]
+  },
+
+  "compliance_manifest": {
+    "universes_used": ["univ:racc00ns", "univ:nouns", "univ:cryptoadz", "univ:mfers"],
+    "evidence_used": [
+      "evid:cc0:racc00ns:2026-02-18",
+      "evid:cc0:nouns:2026-02-18",
+      "evid:cc0:cryptoadz:2026-02-18",
+      "evid:cc0:mfers:2026-02-18"
+    ],
+    "risk_flags": [
+      "risk:trademark:nouns:medium",
+      "risk:trademark:cryptoadz:medium",
+      "risk:meme_derivative:pepe:medium",
+      "risk:meme_derivative:stick_figure:medium",
+      "risk:governance:sartoshi_exit:medium"
+    ],
+    "commercial_confidence": "medium",
+    "confidence_rationale": "All four universes used carry primary CC0 evidence. racc00ns is highest confidence (self-declared, no flags). Nouns and CrypToadz carry medium trademark flags — visual primitives used throughout, brand names avoided as in-world proper nouns. mfers carries medium governance ambiguity (Sartoshi exit) and medium meme derivative flag. No flags are high or unresolved. Bulfinch's not used in this world — no jurisdiction flag applies. Commercial confidence computed as medium: CC0 confirmed across all sources, multiple medium flags present, no high or blocking flags.",
+    "open_questions": [
+      "Nouns trademark: confirm visual primitive usage does not inadvertently recreate the Nouns brand identity closely enough to trigger confusion",
+      "CrypToadz/Pepe adjacency: Silt's amphibian visual should be reviewed against current meme landscape before any public image generation"
+    ]
+  }
+}
