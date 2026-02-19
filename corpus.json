@@ -43,7 +43,7 @@
       "license": "CC0-1.0",
       "evidence_id": "evid:cc0:racc00ns:2026-02-18",
       "risk_flags": [],
-      "notes": "Self-declared CC0 by Jordan Lyall (copyright holder). Raccoon-inspired humanoids: dark facial mask marking, ringed tail, nimble forager builds. Earth tones and shadow palette — deep charcoal, warm brown, occasional flash of amber or green eye-shine. Characters are nocturnal, opportunistic, highly adaptable — trickster-adjacent but pragmatic rather than chaotic. Scavenger aesthetic: repurposed materials, jury-rigged gear, nothing wasted. High confidence — no ambiguity."
+      "notes": "Self-declared CC0 by Jordan Lyall (copyright holder). Two distinct visual registers: v0 is photographic — real raccoons in naturalistic settings, earthy and grounded; v1 is cartoon animated — stylized humanoid raccoons with dark facial mask marking, ringed tail, nimble forager builds. V1 is the dominant visual canon; v0 is the origin. Earth tones and shadow palette — deep charcoal, warm brown, occasional flash of amber or green eye-shine. Characters are nocturnal, opportunistic, highly adaptable — trickster-adjacent but pragmatic rather than chaotic. Scavenger aesthetic: repurposed materials, jury-rigged gear, nothing wasted. High confidence — no ambiguity on either version."
     },
     {
       "id": "univ:xcopy",
@@ -62,6 +62,24 @@
       "evidence_id": "evid:cc0:loot:2026-02-19",
       "risk_flags": ["risk:governance:loot:no_formal_cc0:medium"],
       "notes": "Text-only primitives: each token is a list of eight fantasy equipment items — weapon, chest armor, head armor, waist armor, foot armor, hand armor, neck item, ring — rendered as black text on black background, no images. The items are the world: 'Grimoire,' 'Holy Chestplate of the Fox,' 'Dragon's Crown of Skill.' No character, no art, no lore — the model must generate all of it from the item names alone. Aesthetic is maximalist noun-stacking in minimal form. The community interprets Loot as CC0 based on intentional omission of lore ('left for others to interpret') and a permissive FAQ. No formal CC0 declaration exists from dom hofmann. Medium confidence — treat as CC0 in practice, surface the flag in compliance manifests."
+    },
+    {
+      "id": "univ:blitmap",
+      "name": "Blitmap",
+      "kind": "nft_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:blitmap:2026-02-19",
+      "risk_flags": ["risk:trademark:blitmap:low"],
+      "notes": "16-color pixel art, strict palette constraint — each piece uses exactly four colors pulled from a family palette. Hard edges only: no gradients, no anti-aliasing, no dithering. Characters and scenes are small and dense, rendered in retro game aesthetic with surrealist subject matter — cosmic, pastoral, military, absurd in equal measure. The palette IS the identity: a Blitmap character is visually locked to its four colors, which defines mood and kinship more than form does. Compositions read flat and bold, like a cartridge label or arcade screen. CC0 declared by dom Hofmann at launch. Low trademark risk — the constraint system is the signature, not a name or logo."
+    },
+    {
+      "id": "univ:autoglyphs",
+      "name": "Autoglyphs",
+      "kind": "nft_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:autoglyphs:2026-02-19",
+      "risk_flags": ["risk:trademark:larvalabs:low"],
+      "notes": "Fully on-chain generative ASCII art — characters composed entirely of typographic symbols (pipes, slashes, dots, plus signs) arranged by algorithm into dense symmetrical patterns. No figurative representation, no color, no gradients. Visual grammar is structural: radial symmetry, repetition, density variation, negative space. If referenced in a world, Autoglyphs entities are beings of pure pattern — mathematical, sigil-like, form-as-function. They do not have faces or bodies; they have geometries. The oldest on-chain generative art project, which makes them the direct ancestor of everything Worldkit is building toward. CC0 declared by Larva Labs. Low trademark risk — the visual output is the asset, not a brand mark."
     }
   ]
 }

@@ -295,7 +295,7 @@ async def api_world(world_id: str):
 
 @app.get("/api/corpus")
 async def api_corpus():
-    """Returns the verified CC0 corpus — the five locked universes agents can draw from."""
+    """Returns the verified CC0 corpus — all universes agents can draw from."""
     import sys
     sys.path.insert(0, str(Path(__file__).parent))
     from generate import load_corpus

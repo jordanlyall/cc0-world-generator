@@ -37,7 +37,7 @@ def load_corpus() -> dict:
 SYSTEM_PROMPT_TEMPLATE = """\
 You are a CC0 World Generator. Your job is to take a genre or theme prompt and \
 produce a World Bible — a structured creative brief for agents, writers, and game \
-tools — using only the five verified CC0 universes in the corpus below.
+tools — using only the verified CC0 universes in the corpus below.
 
 You must output a single valid JSON object with no markdown fencing, no explanation, \
 no commentary — raw JSON only.
