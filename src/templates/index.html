@@ -446,6 +446,45 @@
     }
     .world-card-attribution a:hover { border-color: var(--muted); opacity: 1; }
 
+    /* ── Inline manifest viewer ── */
+    .manifest-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 0.75rem;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      opacity: 0.6;
+      transition: opacity 0.15s, color 0.15s;
+    }
+    .manifest-toggle:hover { opacity: 1; color: var(--accent); }
+    .manifest-toggle .m-icon { font-size: 0.55rem; transition: transform 0.2s; }
+    .manifest-toggle.open .m-icon { transform: rotate(90deg); }
+    .manifest-viewer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+    .manifest-viewer.open { max-height: 800px; }
+    .manifest-json {
+      margin-top: 0.6rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: #c0c0c0;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
     /* ── Skeleton loaders ── */
     .skeleton {
       background: var(--surface);
@@ -717,6 +756,47 @@
     card.appendChild(attrDog);
     attrDog.appendChild(dogManifestLink);
 
+    /* Manifest viewer for dogfood card */
+    const murkmManifest = w.compliance_manifest || {
+      "world_id": "world-2026-02-19-noir-detective-city",
+      "confidence": "medium",
+      "sources": [
+        {"id": "univ:nouns", "license": "CC0-1.0", "confidence": "high", "flags": ["risk:trademark:nouns:medium"]},
+        {"id": "univ:cryptoadz", "license": "CC0-1.0", "confidence": "medium", "flags": ["risk:trademark:cryptoadz:medium", "risk:meme_derivative:pepe:medium"]},
+        {"id": "univ:mfers", "license": "CC0-1.0", "confidence": "medium", "flags": ["risk:meme_derivative:stick_figure:medium", "risk:governance:sartoshi_exit:medium"]},
+        {"id": "univ:myth", "license": "public_domain", "confidence": "high", "flags": []},
+        {"id": "univ:racc00ns", "license": "CC0-1.0", "confidence": "high", "flags": []}
+      ],
+      "risk_flags": ["risk:trademark:nouns:medium", "risk:trademark:cryptoadz:medium", "risk:meme_derivative:pepe:medium", "risk:meme_derivative:stick_figure:medium", "risk:governance:sartoshi_exit:medium"],
+      "note": "Commercial use permitted under CC0. Review trademark flags before using universe names as in-world proper nouns."
+    };
+
+    const dogToggle = document.createElement('button');
+    dogToggle.className = 'manifest-toggle';
+    const dogIcon = document.createElement('span');
+    dogIcon.className = 'm-icon';
+    dogIcon.textContent = '\u25b6';
+    dogToggle.appendChild(dogIcon);
+    dogToggle.appendChild(document.createTextNode('\u00a0View compliance manifest'));
+
+    const dogViewer = document.createElement('div');
+    dogViewer.className = 'manifest-viewer';
+    const dogPre = document.createElement('div');
+    dogPre.className = 'manifest-json';
+    dogPre.textContent = JSON.stringify(murkmManifest, null, 2);
+    dogViewer.appendChild(dogPre);
+
+    dogToggle.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = dogViewer.classList.contains('open');
+      dogViewer.classList.toggle('open', !isOpen);
+      dogToggle.classList.toggle('open', !isOpen);
+      dogToggle.lastChild.textContent = isOpen ? '\u00a0View compliance manifest' : '\u00a0Hide manifest';
+    });
+
+    card.appendChild(dogToggle);
+    card.appendChild(dogViewer);
+
     const worldId = w.id || 'world-2026-02-19-noir-detective-city';
     const link = el('a', {'class': 'view-link', href: '/world/' + worldId}, t('View world bible →'));
     card.appendChild(link);
@@ -816,6 +896,36 @@
     manifestLink.addEventListener('click', e => e.stopPropagation());
     attr.appendChild(manifestLink);
     card.appendChild(attr);
+
+    /* Manifest viewer toggle */
+    const manifestData = w.compliance_manifest || null;
+    if (manifestData) {
+      const toggle = document.createElement('button');
+      toggle.className = 'manifest-toggle';
+      const mIcon = document.createElement('span');
+      mIcon.className = 'm-icon';
+      mIcon.textContent = '\u25b6';
+      toggle.appendChild(mIcon);
+      toggle.appendChild(document.createTextNode('\u00a0View compliance manifest'));
+
+      const viewer = document.createElement('div');
+      viewer.className = 'manifest-viewer';
+      const pre = document.createElement('div');
+      pre.className = 'manifest-json';
+      pre.textContent = JSON.stringify(manifestData, null, 2);
+      viewer.appendChild(pre);
+
+      toggle.addEventListener('click', e => {
+        e.stopPropagation();
+        const isOpen = viewer.classList.contains('open');
+        viewer.classList.toggle('open', !isOpen);
+        toggle.classList.toggle('open', !isOpen);
+        toggle.lastChild.textContent = isOpen ? '\u00a0View compliance manifest' : '\u00a0Hide manifest';
+      });
+
+      card.appendChild(toggle);
+      card.appendChild(viewer);
+    }
 
     card.addEventListener('click', () => {
       window.location.href = '/world/' + w.id;

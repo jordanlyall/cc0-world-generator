@@ -230,6 +230,47 @@
     .copy-btn:hover { color: var(--text); border-color: var(--accent); }
     .copy-btn.copied { color: var(--green); border-color: var(--green); }
 
+    /* Collapsible code block */
+    .collapsible-code { margin-bottom: 12px; }
+    .collapsible-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .collapsible-toggle:hover { border-color: var(--accent); color: var(--text); }
+    .collapsible-toggle.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; color: var(--text); }
+    .collapsible-toggle .toggle-icon { font-size: 10px; transition: transform 0.2s; color: var(--accent); }
+    .collapsible-toggle.open .toggle-icon { transform: rotate(90deg); }
+    .collapsible-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+    .collapsible-inner.open { max-height: 600px; }
+    .collapsible-inner .code-block-header {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-bottom: none;
+      padding: 8px 12px;
+    }
+    .collapsible-inner .code-block {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      margin-bottom: 0;
+    }
+
     /* Tool call step */
     .step-row {
       display: flex;
@@ -421,6 +462,36 @@
     return wrap;
   }
 
+  /* ── Collapsible code block (starts closed) ── */
+  function makeCollapsibleCodeBlock(toggleLabel, codeText) {
+    const wrap = el('div', { class: 'collapsible-code' });
+
+    const toggle = el('button', { class: 'collapsible-toggle' });
+    const icon = el('span', { class: 'toggle-icon' });
+    icon.appendChild(t('▶'));
+    toggle.appendChild(icon);
+    toggle.appendChild(t('\u00a0' + toggleLabel));
+    wrap.appendChild(toggle);
+
+    const inner = el('div', { class: 'collapsible-inner' });
+    const header = el('div', { class: 'code-block-header' });
+    header.appendChild(el('span', { class: 'code-label' }, 'MCP Config'));
+    header.appendChild(makeCopyBtn(codeText, '⎘ copy'));
+    inner.appendChild(header);
+    const pre = el('div', { class: 'code-block' });
+    pre.appendChild(t(codeText));
+    inner.appendChild(pre);
+    wrap.appendChild(inner);
+
+    toggle.addEventListener('click', () => {
+      const isOpen = inner.classList.contains('open');
+      inner.classList.toggle('open', !isOpen);
+      toggle.classList.toggle('open', !isOpen);
+    });
+
+    return wrap;
+  }
+
   /* ── Phase status card ── */
   function renderPhaseCard(data) {
     const card = el('div', {});
@@ -537,7 +608,7 @@
     }
   }
 }`;
-    agent.appendChild(makeCodeBlock('MCP Config', mcpConfig));
+    agent.appendChild(makeCollapsibleCodeBlock('{ } MCP config', mcpConfig));
 
     /* Step-by-step */
     const steps = [
