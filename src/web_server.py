@@ -211,6 +211,28 @@ async def api_world(world_id: str):
         raise HTTPException(status_code=404, detail="not found")
     return JSONResponse(content=json.loads(world_file.read_text()))
 
+@app.get("/api/corpus")
+async def api_corpus():
+    """Returns the verified CC0 corpus — the five locked universes agents can draw from."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent))
+    from generate import load_corpus
+    return JSONResponse(content=load_corpus())
+
+@app.get("/api/status")
+async def api_status():
+    """Returns current generation capacity — useful for agents that want to self-throttle."""
+    remaining = max(0, DAILY_GENERATION_LIMIT - _get_daily_count())
+    return {
+        "daily_limit": DAILY_GENERATION_LIMIT,
+        "daily_used": _get_daily_count(),
+        "daily_remaining": remaining,
+        "per_ip_limit": "5/hour",
+        "generate_endpoint": "POST /generate",
+        "poll_endpoint": "GET /status/{job_id}",
+        "world_endpoint": "GET /api/world/{world_id}",
+    }
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _find_world_file(world_id: str) -> Optional[Path]:
