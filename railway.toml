@@ -3,5 +3,3 @@ builder = "nixpacks"
 
 [deploy]
 startCommand = "uvicorn src.web_server:app --host 0.0.0.0 --port $PORT"
-restartPolicyType = "on-failure"
-restartPolicyMaxRetries = 5
