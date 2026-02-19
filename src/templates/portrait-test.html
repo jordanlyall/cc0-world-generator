@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portrait Renderer Test</title>
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #1a1a1a;
+    --border: #333;
+    --text: #e0e0e0;
+    --muted: #888;
+    --accent: #7b6cf6;
+    --green: #4caf50;
+    --red: #ef5350;
+    --yellow: #ffc107;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    padding: 24px;
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-size: 12px;
+  }
+
+  .section {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+
+  .badge-real { background: #1b3a1b; color: var(--green); border: 1px solid #2d5a2d; }
+  .badge-ipfs { background: #1a2a3a; color: #64b5f6; border: 1px solid #2a4a6a; }
+  .badge-gen  { background: #3a2a1a; color: var(--yellow); border: 1px solid #5a4a2a; }
+
+  .portrait-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .portrait-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .portrait-frame {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #111;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .portrait-frame svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .portrait-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .portrait-info {
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .portrait-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .portrait-meta {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .status-ok   { color: var(--green); }
+  .status-err  { color: var(--red); }
+  .status-load { color: var(--yellow); }
+
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: border-color 0.15s;
+  }
+
+  button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .log {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 11px;
+    line-height: 1.6;
+    max-height: 200px;
+    overflow-y: auto;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .log .ok   { color: var(--green); }
+  .log .err  { color: var(--red); }
+  .log .info { color: #64b5f6; }
+
+  .asset-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 11px;
+    line-height: 1.8;
+    max-height: 120px;
+    overflow-y: auto;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Portrait Renderer Test</h1>
+<p class="subtitle">Isolated test bed for CC0 portrait rendering — no world builder required</p>
+
+<div class="controls">
+  <button onclick="runAll()">Run All Tests</button>
+  <button onclick="testNouns()">Nouns Only</button>
+  <button onclick="testCryptoadz()">CrypToadz Only</button>
+  <button onclick="testMfers()">Mfers Only</button>
+  <button onclick="testRacc00ns()">racc00ns Only</button>
+  <button onclick="clearLog()">Clear Log</button>
+</div>
+
+<div class="log" id="log"></div>
+
+<!-- ── NOUNS ─────────────────────────────────────────────────── -->
+<div class="section" id="section-nouns">
+  <div class="section-title">
+    <span>Nouns</span>
+    <span class="badge badge-real">REAL — RLE on-chain</span>
+  </div>
+  <div id="asset-list-nouns" class="asset-list"></div>
+  <div class="portrait-grid" id="grid-nouns"></div>
+</div>
+
+<!-- ── CRYPTOADZ ─────────────────────────────────────────────── -->
+<div class="section" id="section-cryptoadz">
+  <div class="section-title">
+    <span>CrypToadz</span>
+    <span class="badge badge-real">OpenSea CDN</span>
+  </div>
+  <div id="asset-list-cryptoadz" class="asset-list"></div>
+  <div class="portrait-grid" id="grid-cryptoadz"></div>
+</div>
+
+<!-- ── MFERS ─────────────────────────────────────────────────── -->
+<div class="section" id="section-mfers">
+  <div class="section-title">
+    <span>mfers</span>
+    <span class="badge badge-real">OpenSea CDN</span>
+  </div>
+  <div id="asset-list-mfers" class="asset-list"></div>
+  <div class="portrait-grid" id="grid-mfers"></div>
+</div>
+
+<!-- ── RACC00NS ───────────────────────────────────────────────── -->
+<div class="section" id="section-racc00ns">
+  <div class="section-title">
+    <span>racc00ns</span>
+    <span class="badge badge-real">OpenSea CDN</span>
+  </div>
+  <div id="asset-list-racc00ns" class="asset-list"></div>
+  <div class="portrait-grid" id="grid-racc00ns"></div>
+</div>
+
+<!-- ── FALLBACKS (generated) ─────────────────────────────────── -->
+<div class="section" id="section-fallback">
+  <div class="section-title">
+    <span>Generated Fallbacks</span>
+    <span class="badge badge-gen">GENERATED — no real assets loaded</span>
+  </div>
+  <div class="portrait-grid" id="grid-fallback"></div>
+</div>
+
+<script>
+// ── Logging ────────────────────────────────────────────────────────────────
+const logEl = document.getElementById('log');
+
+function log(msg, cls) {
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function clearLog() {
+  while (logEl.firstChild) logEl.removeChild(logEl.firstChild);
+  log('Log cleared.', 'info');
+}
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+function simpleHash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h * 16777619) >>> 0;
+  }
+  return h;
+}
+
+function setSVG(container, svgString) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgString, 'image/svg+xml');
+  const svgEl = doc.documentElement;
+  const parseErr = doc.querySelector('parsererror');
+  if (parseErr) {
+    while (container.firstChild) container.removeChild(container.firstChild);
+    const err = document.createElement('span');
+    err.style.cssText = 'color:#ef5350;font-size:10px;padding:8px;display:block;';
+    err.textContent = 'SVG parse error';
+    container.appendChild(err);
+    return false;
+  }
+  svgEl.setAttribute('width', '100%');
+  svgEl.setAttribute('height', '100%');
+  while (container.firstChild) container.removeChild(container.firstChild);
+  container.appendChild(svgEl);
+  return true;
+}
+
+function showFrameError(frame, msg) {
+  while (frame.firstChild) frame.removeChild(frame.firstChild);
+  const span = document.createElement('span');
+  span.style.cssText = 'color:#ef5350;font-size:9px;padding:4px;display:block;text-align:center;';
+  span.textContent = msg;
+  frame.appendChild(span);
+}
+
+function makeCard(name, metaText) {
+  const card = document.createElement('div');
+  card.className = 'portrait-card';
+
+  const frame = document.createElement('div');
+  frame.className = 'portrait-frame';
+  const spinner = document.createElement('div');
+  spinner.className = 'loading-spinner';
+  frame.appendChild(spinner);
+
+  const info = document.createElement('div');
+  info.className = 'portrait-info';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'portrait-name';
+  nameEl.textContent = name;
+
+  const metaEl = document.createElement('div');
+  metaEl.className = 'portrait-meta';
+  metaEl.textContent = metaText;
+
+  info.appendChild(nameEl);
+  info.appendChild(metaEl);
+  card.appendChild(frame);
+  card.appendChild(info);
+
+  return { card, frame };
+}
+
+// ── CDN image loader ────────────────────────────────────────────────────────
+let _cdnManifest = null;
+
+async function loadCDNImages(project) {
+  if (!_cdnManifest) {
+    const resp = await fetch('/static/collection-images.json');
+    _cdnManifest = await resp.json();
+  }
+  return _cdnManifest[project] || [];
+}
+
+function renderCDNAssetList(elId, images) {
+  const el = document.getElementById(elId);
+  while (el.firstChild) el.removeChild(el.firstChild);
+  if (images.length === 0) {
+    const msg = document.createElement('span');
+    msg.style.color = '#ef5350';
+    msg.textContent = 'No images found in collection-images.json';
+    el.appendChild(msg);
+  } else {
+    images.forEach((img, i) => {
+      if (i > 0) el.appendChild(document.createTextNode('  ·  '));
+      const check = document.createElement('span');
+      check.style.color = '#4caf50';
+      check.textContent = '\u2713 ';
+      el.appendChild(check);
+      el.appendChild(document.createTextNode('#' + img.tokenId));
+    });
+  }
+}
+
+function setAssetListMsg(elId, msg, color) {
+  const el = document.getElementById(elId);
+  while (el.firstChild) el.removeChild(el.firstChild);
+  const span = document.createElement('span');
+  span.style.color = color || 'var(--muted)';
+  span.textContent = msg;
+  el.appendChild(span);
+}
+
+// ── NOUNS (real RLE on-chain art) ─────────────────────────────────────────
+let nounsData = null;
+
+async function loadNounsData() {
+  if (nounsData) return nounsData;
+  const r = await fetch('/static/nouns/image-data.json');
+  if (!r.ok) throw new Error('image-data.json not found');
+  nounsData = await r.json();
+  return nounsData;
+}
+
+function rleDecodeNoun(rleData, palette) {
+  const counts = [];
+  const colors = [];
+  for (let i = 0; i < rleData.length; i += 2) {
+    counts.push(rleData[i]);
+    colors.push(palette[rleData[i + 1]]);
+  }
+  return { counts, colors };
+}
+
+async function buildNounsPortrait(seed) {
+  const data = await loadNounsData();
+  const h = simpleHash(seed);
+  const heads = data.images && data.images.heads ? data.images.heads : [];
+  const bodies = data.images && data.images.bodies ? data.images.bodies : [];
+  const accessories = data.images && data.images.accessories ? data.images.accessories : [];
+  const glasses = data.images && data.images.glasses ? data.images.glasses : [];
+  const bgColors = data.bgcolors || ['d5d7e1'];
+  const palette = data.palette || [];
+
+  if (!heads.length) return null;
+
+  const bg = bgColors[h % bgColors.length];
+  const head = heads[h % heads.length];
+  const body = bodies.length ? bodies[(h >> 4) % bodies.length] : null;
+  const acc = accessories.length ? accessories[(h >> 8) % accessories.length] : null;
+  const gl = glasses.length ? glasses[(h >> 12) % glasses.length] : null;
+
+  const W = 32;
+  const layerOrder = [body, acc, head, gl].filter(Boolean);
+  const pixels = new Array(W * W).fill(null);
+
+  for (const layer of layerOrder) {
+    if (!layer || !layer.data) continue;
+    const bounds = layer.bounds || { top: 0, left: 0, bottom: W, right: W };
+    let rle;
+    if (typeof layer.data === 'string') {
+      const bin = atob(layer.data);
+      rle = new Array(bin.length);
+      for (let i = 0; i < bin.length; i++) rle[i] = bin.charCodeAt(i);
+    } else {
+      rle = layer.data;
+    }
+    const decoded = rleDecodeNoun(rle, palette);
+    let row = bounds.top, col = bounds.left;
+    for (let i = 0; i < decoded.counts.length; i++) {
+      const count = decoded.counts[i];
+      const color = decoded.colors[i];
+      for (let j = 0; j < count; j++) {
+        if (color && row < bounds.bottom) {
+          pixels[row * W + col] = color;
+        }
+        col++;
+        if (col >= bounds.right) { col = bounds.left; row++; }
+      }
+    }
+  }
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svgEl = document.createElementNS(svgNS, 'svg');
+  svgEl.setAttribute('viewBox', '0 0 32 32');
+  svgEl.setAttribute('shape-rendering', 'crispEdges');
+
+  const bgRect = document.createElementNS(svgNS, 'rect');
+  bgRect.setAttribute('width', '32');
+  bgRect.setAttribute('height', '32');
+  bgRect.setAttribute('fill', '#' + bg);
+  svgEl.appendChild(bgRect);
+
+  for (let y = 0; y < W; y++) {
+    for (let x = 0; x < W; x++) {
+      const c = pixels[y * W + x];
+      if (c) {
+        const r = document.createElementNS(svgNS, 'rect');
+        r.setAttribute('x', x);
+        r.setAttribute('y', y);
+        r.setAttribute('width', '1');
+        r.setAttribute('height', '1');
+        r.setAttribute('fill', '#' + c);
+        svgEl.appendChild(r);
+      }
+    }
+  }
+
+  // Serialize to string for setSVG
+  const s = new XMLSerializer();
+  return s.serializeToString(svgEl);
+}
+
+// ── IPFS SVG loader ────────────────────────────────────────────────────────
+const svgCache = {};
+
+async function loadSVGAsset(url) {
+  if (svgCache[url]) return svgCache[url];
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const text = await r.text();
+  svgCache[url] = text;
+  return text;
+}
+
+// ── Generated fallbacks ────────────────────────────────────────────────────
+
+function makeSVGString(viewBox, elements) {
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox + '">' +
+    elements.join('') + '</svg>';
+}
+
+function rect(x, y, w, h, fill, rx) {
+  return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h +
+    '" fill="' + fill + '"' + (rx ? ' rx="' + rx + '"' : '') + '/>';
+}
+
+function ellipse(cx, cy, rx, ry, fill, opacity) {
+  return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry +
+    '" fill="' + fill + '"' + (opacity ? ' opacity="' + opacity + '"' : '') + '/>';
+}
+
+function circle(cx, cy, r, fill) {
+  return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + fill + '"/>';
+}
+
+function svgMfer(seed) {
+  const h = simpleHash(seed);
+  const bgs = ['#1a1a1a','#0d0d2b','#2b0d0d','#0d2b0d'];
+  const hoodieColors = ['#4a4a8a','#8a4a4a','#4a8a4a','#6a4a8a','#8a6a4a'];
+  const bg = bgs[h % bgs.length];
+  const hc = hoodieColors[(h >> 3) % hoodieColors.length];
+  const rng = (n) => (h >> (n * 4)) & 0xf;
+  const hasCig = rng(2) > 10;
+  const els = [
+    rect(0, 0, 100, 100, bg),
+    ellipse(50, 38, 22, 24, '#f5c8a0'),
+    ellipse(41, 35, 4, 4.5, 'white'),
+    ellipse(59, 35, 4, 4.5, 'white'),
+    circle(41 + rng(3)%3, 35 + rng(4)%3, 2.5, '#1a1a1a'),
+    circle(59 + rng(5)%3, 35 + rng(6)%3, 2.5, '#1a1a1a'),
+    rect(30, 58, 40, 35, hc, 4),
+    ellipse(50, 58, 14, 8, hc),
+    '<path d="M40,58 Q50,72 60,58" fill="none" stroke="' + bg + '" stroke-width="1.5"/>',
+    '<line x1="28" y1="60" x2="15" y2="80" stroke="' + hc + '" stroke-width="10" stroke-linecap="round"/>',
+    '<line x1="72" y1="60" x2="85" y2="80" stroke="' + hc + '" stroke-width="10" stroke-linecap="round"/>',
+  ];
+  if (hasCig) {
+    els.push(rect(54, 47, 14, 3, '#f5f5dc', 1.5));
+    els.push(rect(64, 47, 4, 3, '#e74c3c', 1));
+  }
+  return makeSVGString('0 0 100 100', els);
+}
+
+function svgCryptoadz(seed) {
+  const h = simpleHash(seed);
+  const bgs = ['#1a3a1a','#0d2b0d','#142814','#0a1e0a'];
+  const toads = ['#4a7a3a','#5a8a4a','#3a6a2a','#6a9a5a','#7aaa6a'];
+  const eyes = ['#ff4444','#ff8800','#ffcc00','#44aaff','#ff44aa'];
+  const bg = bgs[h % bgs.length];
+  const tc = toads[(h >> 3) % toads.length];
+  const ec = eyes[(h >> 6) % eyes.length];
+  const rng = (n) => (h >> (n * 5)) & 0x1f;
+  const hasHat = rng(2) > 16;
+  const hatColors = ['#222','#884400','#004488','#440088'];
+  const hc = hatColors[rng(3) % hatColors.length];
+  const ex1 = 38 + rng(4)%4 - 1;
+  const ey1 = 44 + rng(5)%4 - 1;
+  const ex2 = 62 + rng(6)%4 - 1;
+  const ey2 = 44 + rng(7)%4 - 1;
+  const els = [
+    rect(0, 0, 100, 100, bg),
+    ellipse(50, 56, 30, 26, tc),
+    ellipse(50, 68, 24, 14, tc, 0.85),
+    ellipse(38, 44, 11, 13, tc),
+    ellipse(62, 44, 11, 13, tc),
+    ellipse(38, 44, 8, 9, 'white'),
+    ellipse(62, 44, 8, 9, 'white'),
+    circle(ex1, ey1, 4, ec),
+    circle(ex2, ey2, 4, ec),
+    circle(ex1, ey1, 2, '#111'),
+    circle(ex2, ey2, 2, '#111'),
+    '<path d="M38,65 Q50,72 62,65" fill="none" stroke="#2a5a1a" stroke-width="2"/>',
+  ];
+  if (hasHat) {
+    els.push(rect(30, 18, 40, 24, hc, 2));
+    els.push(rect(22, 40, 56, 5, hc, 2));
+  }
+  return makeSVGString('0 0 100 100', els);
+}
+
+function svgRacc00n(seed) {
+  const h = simpleHash(seed);
+  const bgs = ['#0d0d1a','#1a0d0d','#0d1a0d','#1a1a0d'];
+  const bg = bgs[h % bgs.length];
+  const rng = (n) => (h >> (n * 4)) & 0xf;
+  const accents = ['#7b6cf6','#f67b6c','#6cf67b','#f6d06c'];
+  const acc = accents[rng(2) % accents.length];
+  const ex1 = 40 + rng(3)%3;
+  const ey1 = 47 + rng(4)%3;
+  const ex2 = 60 + rng(5)%3;
+  const ey2 = 47 + rng(6)%3;
+  const els = [
+    rect(0, 0, 100, 100, bg),
+    ellipse(50, 52, 28, 26, '#808080'),
+    ellipse(35, 32, 10, 12, '#808080'),
+    ellipse(65, 32, 10, 12, '#808080'),
+    ellipse(35, 30, 6, 8, '#111'),
+    ellipse(65, 30, 6, 8, '#111'),
+    ellipse(50, 54, 20, 18, '#aaa'),
+    ellipse(50, 54, 12, 10, '#c8c8c8'),
+    ellipse(40, 48, 7, 8, '#111'),
+    ellipse(60, 48, 7, 8, '#111'),
+    circle(ex1, ey1, 3, acc),
+    circle(ex2, ey2, 3, acc),
+    ellipse(50, 60, 5, 3, '#b06060'),
+    rect(10, 56, 12, 28, '#666', 4),
+    rect(78, 56, 12, 28, '#666', 4),
+  ];
+  if (rng(7) > 10) {
+    els.push('<path d="M50,75 Q70,80 80,75 Q85,70 80,65" fill="none" stroke="#808080" stroke-width="6" stroke-linecap="round"/>');
+  }
+  return makeSVGString('0 0 100 100', els);
+}
+
+// ── Test runners ───────────────────────────────────────────────────────────
+const CRYPTOADZ_IDS = [1, 100, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000];
+const MFERS_IDS     = [1, 100, 300, 600, 900, 1200, 1500, 2000, 2500, 3000, 3500, 4000];
+const RACC00NS_IDS  = [1, 200, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000];
+
+async function testNouns() {
+  const grid = document.getElementById('grid-nouns');
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
+  setAssetListMsg('asset-list-nouns', 'Loading image-data.json...', 'var(--yellow)');
+  log('Testing Nouns portraits (RLE decode)...', 'info');
+
+  try {
+    await loadNounsData();
+    setAssetListMsg('asset-list-nouns', 'image-data.json loaded', '#4caf50');
+  } catch (e) {
+    setAssetListMsg('asset-list-nouns', 'Failed to load image-data.json: ' + e.message, '#ef5350');
+    log('Nouns load failed: ' + e.message, 'err');
+    return;
+  }
+
+  const seeds = ['Lensa Kade', 'Vorrk', 'The Council', 'Pip', 'Scratch', 'Noun #42'];
+  for (const seed of seeds) {
+    const { card, frame } = makeCard(seed, 'nouns rle');
+    grid.appendChild(card);
+    try {
+      const svg = await buildNounsPortrait(seed);
+      if (svg) {
+        setSVG(frame, svg);
+        log('  ok ' + seed, 'ok');
+      } else {
+        while (frame.firstChild) frame.removeChild(frame.firstChild);
+        const msg = document.createElement('span');
+        msg.style.cssText = 'color:#888;font-size:10px;padding:8px;display:block;';
+        msg.textContent = 'no data';
+        frame.appendChild(msg);
+        log('  - ' + seed + ': no layers');
+      }
+    } catch (e) {
+      showFrameError(frame, e.message);
+      log('  FAIL ' + seed + ': ' + e.message, 'err');
+    }
+  }
+}
+
+async function testCDNProject(project, gridId, listId) {
+  const grid = document.getElementById(gridId);
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
+  setAssetListMsg(listId, 'Loading from OpenSea CDN...', 'var(--yellow)');
+  log('Loading ' + project + ' from OpenSea CDN...', 'info');
+
+  let images;
+  try {
+    images = await loadCDNImages(project);
+  } catch (e) {
+    setAssetListMsg(listId, 'Failed: ' + e.message, '#ef5350');
+    log(project + ' load failed: ' + e.message, 'err');
+    return;
+  }
+
+  renderCDNAssetList(listId, images);
+  log('  ' + images.length + ' images from ' + project, 'ok');
+
+  for (const item of images) {
+    const { card, frame } = makeCard(project + ' #' + item.tokenId, 'token ' + item.tokenId);
+    grid.appendChild(card);
+    const img = document.createElement('img');
+    img.src = item.imageUrl;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:4px;';
+    img.onload = () => log('  ok #' + item.tokenId, 'ok');
+    img.onerror = () => {
+      showFrameError(frame, 'CDN load failed');
+      log('  FAIL #' + item.tokenId, 'err');
+    };
+    while (frame.firstChild) frame.removeChild(frame.firstChild);
+    frame.appendChild(img);
+  }
+}
+
+async function testCryptoadz() {
+  await testCDNProject('cryptoadz', 'grid-cryptoadz', 'asset-list-cryptoadz');
+}
+
+async function testMfers() {
+  await testCDNProject('mfers', 'grid-mfers', 'asset-list-mfers');
+}
+
+async function testRacc00ns() {
+  await testCDNProject('racc00ns', 'grid-racc00ns', 'asset-list-racc00ns');
+}
+
+function testFallbacks() {
+  const grid = document.getElementById('grid-fallback');
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
+  const tests = [
+    { fn: svgMfer,       seed: 'Scratch mfer',    label: 'mfer generated' },
+    { fn: svgMfer,       seed: 'Anon mfer',        label: 'mfer generated' },
+    { fn: svgCryptoadz,  seed: 'Vorrk toad',       label: 'cryptoadz generated' },
+    { fn: svgCryptoadz,  seed: 'Slimeball toad',   label: 'cryptoadz generated' },
+    { fn: svgRacc00n,    seed: 'Pip raccoon',       label: 'racc00n generated' },
+    { fn: svgRacc00n,    seed: 'Trash raccoon',     label: 'racc00n generated' },
+  ];
+  for (const t of tests) {
+    const { card, frame } = makeCard(t.seed, t.label);
+    grid.appendChild(card);
+    setSVG(frame, t.fn(t.seed));
+  }
+}
+
+async function runAll() {
+  clearLog();
+  log('Running all portrait tests...', 'info');
+  await testNouns();
+  await testCryptoadz();
+  await testMfers();
+  await testRacc00ns();
+  testFallbacks();
+  log('Done.', 'ok');
+}
+
+// Auto-run on load
+window.addEventListener('DOMContentLoaded', async () => {
+  log('Loading CDN images...', 'info');
+  try {
+    await Promise.all([
+      testCryptoadz(),
+      testMfers(),
+      testRacc00ns(),
+    ]);
+  } catch (e) {
+    log('Auto-load error: ' + e.message, 'err');
+  }
+  testFallbacks();
+  log('Ready. Click a test button to reload.', 'info');
+});
+</script>
+</body>
+</html>

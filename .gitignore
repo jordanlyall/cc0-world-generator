@@ -17,3 +17,11 @@ worlds 2/
 
 # OS
 .DS_Store
+
+# Foundry build artifacts
+out/
+broadcast/
+cache/
+
+# Foundry lib (use forge install / gitmodules instead)
+lib/

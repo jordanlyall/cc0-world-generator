@@ -279,8 +279,30 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 0.875rem 1rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      gap: 0.875rem;
+      align-items: flex-start;
     }
+
+    .portrait-canvas {
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #111;
+    }
+
+    .portrait-canvas svg,
+    .portrait-canvas img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .entity-body { flex: 1; min-width: 0; }
 
     .entity-header { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.25rem; }
     .entity-name { font-size: 0.9rem; font-weight: 600; }
@@ -532,24 +554,29 @@
     frag.appendChild(sSection);
 
     // ── Characters ──
-    const characters = wb.characters || wb.cast || [];
+    const characters = wb.protagonist_archetypes || wb.characters || wb.cast || [];
     if (characters.length > 0) {
       const s = el('div', { class: 'section' });
       s.appendChild(sectionTitle('Characters'));
       const list = el('div', { class: 'entity-list' });
       for (const c of characters) {
         const card = el('div', { class: 'entity-card' });
-        const h = el('div', { class: 'entity-header' });
-        h.appendChild(el('span', { class: 'entity-name' }, t(c.name || c.id || '')));
-        if (c.role) h.appendChild(el('span', { class: 'entity-type' }, t(c.role)));
-        card.appendChild(h);
-        if (c.description) card.appendChild(el('div', { class: 'entity-desc' }, t(c.description)));
-        const csrc = c.corpus_source;
+        const portrait = el('div', { class: 'portrait-canvas' });
+        card.appendChild(portrait);
+        const body = el('div', { class: 'entity-body' });
+        const hdr = el('div', { class: 'entity-header' });
+        hdr.appendChild(el('span', { class: 'entity-name' }, t(c.name || c.id || '')));
+        if (c.role || c.species) hdr.appendChild(el('span', { class: 'entity-type' }, t(c.role || c.species || '')));
+        body.appendChild(hdr);
+        if (c.description) body.appendChild(el('div', { class: 'entity-desc' }, t(c.description)));
+        const csrc = c.corpus_source || c.source_universe;
         if (csrc) {
           const srcText = typeof csrc === 'string' ? csrc : (csrc.universe || csrc.universe_id || JSON.stringify(csrc));
-          card.appendChild(el('div', { class: 'entity-source' }, t(srcText)));
+          body.appendChild(el('div', { class: 'entity-source' }, t(srcText)));
         }
+        card.appendChild(body);
         list.appendChild(card);
+        renderPortrait(portrait, csrc, c.name || c.id || '');
       }
       s.appendChild(list);
       frag.appendChild(s);
@@ -563,17 +590,22 @@
       const list = el('div', { class: 'entity-list' });
       for (const f of factions) {
         const card = el('div', { class: 'entity-card' });
-        const h = el('div', { class: 'entity-header' });
-        h.appendChild(el('span', { class: 'entity-name' }, t(f.name || f.id || '')));
-        if (f.type) h.appendChild(el('span', { class: 'entity-type' }, t(f.type)));
-        card.appendChild(h);
-        if (f.description) card.appendChild(el('div', { class: 'entity-desc' }, t(f.description)));
-        const fsrc = f.corpus_source;
+        const portrait = el('div', { class: 'portrait-canvas' });
+        card.appendChild(portrait);
+        const body = el('div', { class: 'entity-body' });
+        const hdr = el('div', { class: 'entity-header' });
+        hdr.appendChild(el('span', { class: 'entity-name' }, t(f.name || f.id || '')));
+        if (f.type || f.archetype) hdr.appendChild(el('span', { class: 'entity-type' }, t(f.type || f.archetype || '')));
+        body.appendChild(hdr);
+        if (f.description) body.appendChild(el('div', { class: 'entity-desc' }, t(f.description)));
+        const fsrc = f.corpus_source || f.source_universe;
         if (fsrc) {
           const srcText = typeof fsrc === 'string' ? fsrc : (fsrc.universe || fsrc.universe_id || JSON.stringify(fsrc));
-          card.appendChild(el('div', { class: 'entity-source' }, t(srcText)));
+          body.appendChild(el('div', { class: 'entity-source' }, t(srcText)));
         }
+        card.appendChild(body);
         list.appendChild(card);
+        renderPortrait(portrait, fsrc, f.name || f.id || '');
       }
       s.appendChild(list);
       frag.appendChild(s);
@@ -626,6 +658,266 @@
 
     return frag;
   }
+
+  // ── Portrait renderer ─────────────────────────────────────────────────────
+
+  // FNV-1a 32-bit hash for deterministic trait selection from entity name
+  function simpleHash(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = (h * 16777619) >>> 0;
+    }
+    return h;
+  }
+
+  // Decode Nouns RLE image data into pixel rows
+  function decodeRLE(data) {
+    // data: "0x<bound><colorIdx><runLen>..." each group is 2 hex chars per byte
+    const hex = data.startsWith('0x') ? data.slice(2) : data;
+    const pixels = [];
+    for (let i = 2; i < hex.length; i += 4) {  // skip bounds byte (first byte)
+      const colorIdx = parseInt(hex.slice(i, i + 2), 16);
+      const run = parseInt(hex.slice(i + 2, i + 4), 16);
+      for (let j = 0; j < run; j++) pixels.push(colorIdx);
+    }
+    return pixels;
+  }
+
+  // Build a 32x32 Nouns SVG from image-data for a single part
+  function buildNounsSVG(partPixels, palette, offsetX, offsetY) {
+    const rects = [];
+    for (let i = 0; i < partPixels.length; i++) {
+      const cidx = partPixels[i];
+      if (cidx === 0) continue; // transparent
+      const color = '#' + (palette[cidx] || '000000');
+      const x = (i % 32) + offsetX;
+      const y = Math.floor(i / 32) + offsetY;
+      rects.push(`<rect x="${x}" y="${y}" width="1" height="1" fill="${color}"/>`);
+    }
+    return rects.join('');
+  }
+
+  let _cdnManifest = null;
+  async function loadCDNImages(project) {
+    if (!_cdnManifest) {
+      const resp = await fetch('/static/collection-images.json');
+      _cdnManifest = await resp.json();
+    }
+    return _cdnManifest[project] || [];
+  }
+
+  let _nounsCache = null;
+  async function fetchNounsData() {
+    if (_nounsCache) return _nounsCache;
+    try {
+      const r = await fetch('/static/nouns/image-data.json');
+      _nounsCache = await r.json();
+    } catch (e) {
+      _nounsCache = null;
+    }
+    return _nounsCache;
+  }
+
+  // Build a complete Nouns portrait SVG string (48x48 viewBox over 32x32 grid)
+  async function buildNounsPortrait(seed) {
+    const nd = await fetchNounsData();
+    if (!nd) return null;
+    const h = simpleHash(seed);
+    const pal = nd.palette;
+    const imgs = nd.images;
+    const bgColor = nd.bgcolors ? nd.bgcolors[h % nd.bgcolors.length] : 'd5d7e1';
+    const body = imgs.bodies[h % imgs.bodies.length];
+    const acc = imgs.accessories[(h >> 4) % imgs.accessories.length];
+    const head = imgs.heads[(h >> 8) % imgs.heads.length];
+    const glasses = imgs.glasses[(h >> 12) % imgs.glasses.length];
+    const parts = [
+      buildNounsSVG(decodeRLE(body.data), pal, 0, 0),
+      buildNounsSVG(decodeRLE(acc.data), pal, 0, 0),
+      buildNounsSVG(decodeRLE(head.data), pal, 0, 0),
+      buildNounsSVG(decodeRLE(glasses.data), pal, 0, 0),
+    ];
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">`
+      + `<rect width="32" height="32" fill="#${bgColor}"/>`
+      + parts.join('')
+      + `</svg>`;
+  }
+
+  // Mfers: stick-figure with hoodie aesthetic, greyscale + pop color
+  function svgMfer(seed) {
+    const h = simpleHash(seed);
+    const hoodies = ['#2a2a2a','#3d3d3d','#1a1a1a','#4a4040','#3a3a4a'];
+    const smokes = ['#e8e8e8','#cccccc','#f0f0f0'];
+    const hoodie = hoodies[h % hoodies.length];
+    const smoke = smokes[(h >> 4) % smokes.length];
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">`
+      + `<rect width="32" height="32" fill="#111"/>`
+      + `<ellipse cx="16" cy="9" rx="5" ry="5.5" fill="#d4a574"/>`
+      + `<rect x="10" y="14" width="12" height="10" rx="2" fill="${hoodie}"/>`
+      + `<rect x="8" y="14" width="4" height="8" rx="1" fill="${hoodie}"/>`
+      + `<rect x="20" y="14" width="4" height="8" rx="1" fill="${hoodie}"/>`
+      + `<ellipse cx="14" cy="9" rx="1" ry="1" fill="#1a1a1a"/>`
+      + `<ellipse cx="18" cy="9" rx="1" ry="1" fill="#1a1a1a"/>`
+      + `<line x1="19" y1="10" x2="23" y2="6" stroke="${smoke}" stroke-width="0.8"/>`
+      + `<ellipse cx="23" cy="5.5" rx="1.5" ry="1" fill="${smoke}" opacity="0.7"/>`
+      + `</svg>`;
+  }
+
+  // CrypToadz: load palette from trait-data.json, render pixel-art toad
+  let _cryptoadzCache = null;
+  async function fetchCryptoadz() {
+    if (_cryptoadzCache) return _cryptoadzCache;
+    try {
+      const r = await fetch('/static/cryptoadz/trait-data.json');
+      _cryptoadzCache = await r.json();
+    } catch (e) {
+      _cryptoadzCache = null;
+    }
+    return _cryptoadzCache;
+  }
+
+  async function buildCryptoadz(seed) {
+    const td = await fetchCryptoadz();
+    const h = simpleHash(seed);
+    // Fall back to hardcoded palette if fetch fails
+    const bodyColors = td ? td.body_colors : ['#4a7c3f','#3d6b34','#5a8c4a','#2d5c2a','#6a9c5a'];
+    const accentColors = td ? td.accent_colors : ['#ff6600','#ffcc00','#ff3300','#ff9900'];
+    const backgrounds = td ? td.backgrounds : ['#1a2a1a','#0d1a0d','#2a3a2a'];
+    const neutralDarks = td ? td.neutral_darks : ['#1a2a1a','#2a3a2a'];
+    const green = bodyColors[h % bodyColors.length];
+    const eye = accentColors[(h >> 6) % accentColors.length];
+    const bg = backgrounds[(h >> 10) % backgrounds.length];
+    const shadow = neutralDarks[(h >> 14) % neutralDarks.length];
+    // Pixel-art toad using rect grid (crispEdges, 32x32)
+    // Body: 20x12 block centered; eye bumps: two 8x8 offset; limbs: corner rects
+    const rects = [
+      // background
+      `<rect width="32" height="32" fill="${bg}"/>`,
+      // shadow/ground
+      `<rect x="6" y="26" width="20" height="4" fill="${shadow}" opacity="0.5"/>`,
+      // body
+      `<rect x="6" y="14" width="20" height="12" fill="${green}"/>`,
+      // belly lighter patch
+      `<rect x="10" y="17" width="12" height="7" fill="${green}" opacity="0.7"/>`,
+      // left arm
+      `<rect x="2" y="18" width="6" height="4" fill="${green}"/>`,
+      // right arm
+      `<rect x="24" y="18" width="6" height="4" fill="${green}"/>`,
+      // left foot
+      `<rect x="4" y="24" width="8" height="4" fill="${green}"/>`,
+      // right foot
+      `<rect x="20" y="24" width="8" height="4" fill="${green}"/>`,
+      // left eye bump
+      `<rect x="8" y="8" width="8" height="8" fill="${green}"/>`,
+      // right eye bump
+      `<rect x="16" y="8" width="8" height="8" fill="${green}"/>`,
+      // left eye dark
+      `<rect x="10" y="10" width="4" height="4" fill="#111"/>`,
+      // right eye dark
+      `<rect x="18" y="10" width="4" height="4" fill="#111"/>`,
+      // left pupil
+      `<rect x="11" y="11" width="2" height="2" fill="${eye}"/>`,
+      // right pupil
+      `<rect x="19" y="11" width="2" height="2" fill="${eye}"/>`,
+      // mouth line
+      `<rect x="11" y="22" width="10" height="2" fill="${shadow}"/>`,
+    ];
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">`
+      + rects.join('')
+      + `</svg>`;
+  }
+
+  // Bulfinch/Myth: classical marble bust silhouette
+  function svgMyth(seed) {
+    const h = simpleHash(seed);
+    const marbles = ['#e8e4d0','#ddd9c4','#f0ece0','#d4ceba'];
+    const accents = ['#c9a84c','#8b7355','#a0522d','#6b8cba'];
+    const marble = marbles[h % marbles.length];
+    const accent = accents[(h >> 5) % accents.length];
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">`
+      + `<rect width="32" height="32" fill="#1a1814"/>`
+      + `<ellipse cx="16" cy="11" rx="6" ry="7" fill="${marble}"/>`
+      + `<rect x="10" y="17" width="12" height="8" rx="1" fill="${marble}"/>`
+      + `<ellipse cx="13" cy="10" rx="1" ry="1.2" fill="#8a7a6a"/>`
+      + `<ellipse cx="19" cy="10" rx="1" ry="1.2" fill="#8a7a6a"/>`
+      + `<rect x="12" y="13" width="8" height="1" rx="0.5" fill="#9a8a7a"/>`
+      + `<rect x="8" y="25" width="16" height="3" rx="0.5" fill="${accent}"/>`
+      + `<rect x="9" y="23" width="14" height="2" rx="0" fill="${marble}"/>`
+      + `</svg>`;
+  }
+
+  // racc00ns: raccoon with mask, stylized
+  function svgRacc00ns(seed) {
+    const h = simpleHash(seed);
+    const furs = ['#7a7a7a','#6a6a6a','#8a8a8a','#5a5a5a','#9a9090'];
+    const accents = ['#00ccaa','#0099cc','#cc6600','#9900cc'];
+    const fur = furs[h % furs.length];
+    const accent = accents[(h >> 7) % accents.length];
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">`
+      + `<rect width="32" height="32" fill="#111118"/>`
+      + `<ellipse cx="16" cy="14" rx="9" ry="10" fill="${fur}"/>`
+      + `<ellipse cx="9" cy="8" rx="3" ry="4" fill="${fur}"/>`
+      + `<ellipse cx="23" cy="8" rx="3" ry="4" fill="${fur}"/>`
+      + `<ellipse cx="9" cy="8" rx="1.5" ry="2" fill="#222"/>`
+      + `<ellipse cx="23" cy="8" rx="1.5" ry="2" fill="#222"/>`
+      + `<rect x="9" y="12" width="14" height="4" rx="2" fill="#222" opacity="0.85"/>`
+      + `<ellipse cx="13" cy="14" rx="2" ry="2" fill="${accent}" opacity="0.9"/>`
+      + `<ellipse cx="19" cy="14" rx="2" ry="2" fill="${accent}" opacity="0.9"/>`
+      + `<ellipse cx="16" cy="19" rx="2" ry="1.5" fill="#c8a882"/>`
+      + `<ellipse cx="16" cy="20.5" rx="1" ry="0.7" fill="#1a1a1a"/>`
+      + `</svg>`;
+  }
+
+  // Safe SVG insertion via DOMParser (avoids innerHTML XSS concern)
+  function setSVG(container, svgString) {
+    const doc = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+    const svg = doc.documentElement;
+    container.appendChild(svg);
+  }
+
+  // Render a CDN image into a portrait container
+  async function renderCDNPortrait(container, project, seed) {
+    let images;
+    try {
+      images = await loadCDNImages(project);
+    } catch(e) {
+      console.error('[portrait] loadCDNImages failed:', project, e);
+      return false;
+    }
+    console.log('[portrait] CDN', project, 'images:', images.length, 'seed:', seed);
+    if (!images.length) return false;
+    const idx = simpleHash(seed || '') % images.length;
+    const { imageUrl } = images[idx];
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = project;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+    container.appendChild(img);
+    return true;
+  }
+
+  // Route portrait generation by corpus source
+  async function renderPortrait(container, corpusSource, seed) {
+    // corpusSource may be a string like "univ:cryptoadz" or an object like {universe: "univ:cryptoadz"}
+    const src = typeof corpusSource === 'string'
+      ? corpusSource
+      : (corpusSource && (corpusSource.universe || corpusSource.universe_id || JSON.stringify(corpusSource))) || '';
+    if (src.includes('nouns')) {
+      const svgString = await buildNounsPortrait(seed);
+      if (svgString) setSVG(container, svgString);
+    } else if (src.includes('mfers')) {
+      await renderCDNPortrait(container, 'mfers', seed);
+    } else if (src.includes('cryptoadz') || src.includes('toadz')) {
+      await renderCDNPortrait(container, 'cryptoadz', seed);
+    } else if (src.includes('myth') || src.includes('bulfinch')) {
+      const svgString = svgMyth(seed);
+      if (svgString) setSVG(container, svgString);
+    } else if (src.includes('racc')) {
+      await renderCDNPortrait(container, 'racc00ns', seed);
+    }
+  }
+
+  // ── Section title helper ───────────────────────────────────────────────────
 
   function sectionTitle(text) {
     return el('div', { class: 'section-title' }, t(text));

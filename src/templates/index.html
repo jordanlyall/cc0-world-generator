@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CC0 World Generator</title>
+  <title>Worldkit — CC0 Character Primitives for AI Agents</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,6 +14,7 @@
       --text: #e8e8e8;
       --muted: #666;
       --accent: #7c3aed;
+      --accent-dim: rgba(124, 58, 237, 0.15);
       --green: #22c55e;
       --yellow: #eab308;
       --red: #ef4444;
@@ -29,158 +30,448 @@
       flex-direction: column;
     }
 
+    /* ── Header ── */
     header {
       border-bottom: 1px solid var(--border);
       padding: 1.25rem 2rem;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      justify-content: space-between;
     }
 
-    .logo { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); letter-spacing: 0.05em; }
+    .logo { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); letter-spacing: 0.05em; text-decoration: none; }
     .logo span { color: var(--accent); }
 
+    nav { display: flex; align-items: center; gap: 1.5rem; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.15s; }
+    nav a:hover { color: var(--text); }
+    nav .nav-mint {
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      transition: background 0.15s;
+    }
+    nav .nav-mint:hover { background: var(--accent-dim); color: var(--accent); }
+
+    /* ── Main layout ── */
     main {
       flex: 1;
-      max-width: 720px;
+      max-width: 860px;
       margin: 0 auto;
-      padding: 4rem 2rem 2rem;
+      padding: 4rem 2rem 4rem;
       width: 100%;
     }
 
-    .headline { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; letter-spacing: -0.02em; }
-    .subline { color: var(--muted); font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.5; }
-    .refusal-line { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); margin-bottom: 2.5rem; }
+    section { margin-bottom: 5rem; }
 
-    .generate-form { margin-bottom: 3rem; }
+    /* ── Hero ── */
+    .hero { margin-bottom: 4rem; }
 
-    .input-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
-
-    #prompt-input {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.75rem 1rem;
-      font-size: 0.95rem;
-      font-family: inherit;
-      border-radius: 6px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    #prompt-input:focus { border-color: var(--accent); }
-    #prompt-input::placeholder { color: var(--muted); }
-
-    #generate-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: opacity 0.15s;
-      white-space: nowrap;
-    }
-    #generate-btn:hover:not(:disabled) { opacity: 0.85; }
-    #generate-btn:disabled { opacity: 0.4; cursor: default; }
-
-    .char-count { font-size: 0.75rem; color: var(--muted); text-align: right; }
-    .char-count.over { color: var(--red); }
-
-    #status-bar {
-      display: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 2rem;
-      font-size: 0.875rem;
-    }
-    .status-row { display: flex; align-items: center; gap: 0.625rem; }
-    .spinner {
-      width: 14px; height: 14px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      flex-shrink: 0;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .status-text { color: var(--muted); }
-
-    #refusal-banner {
-      display: none;
-      background: #1e1b4b;
-      border: 1px solid #4c1d95;
-      border-radius: 6px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
-      font-size: 0.875rem;
-      color: #a78bfa;
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
     }
 
-    .examples { margin-bottom: 1rem; }
-    .examples-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.625rem; }
-    .example-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .chip {
-      background: var(--surface);
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 600px;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .pill {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      padding: 0.3rem 0.6rem;
+      border-radius: 3px;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 0.35rem 0.75rem;
-      font-size: 0.8rem;
-      border-radius: 99px;
-      cursor: pointer;
-      transition: color 0.15s, border-color 0.15s;
     }
-    .chip:hover { color: var(--text); border-color: var(--accent); }
+    .pill.accent { border-color: var(--accent); color: var(--accent); }
 
-    .section-title { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
-
-    #worlds-list { display: flex; flex-direction: column; gap: 0.5rem; }
-
-    .world-card {
+    /* ── Mint CTA ── */
+    .mint-cta {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 1rem 1.25rem;
-      cursor: pointer;
+      padding: 2rem;
+      margin-bottom: 5rem;
+    }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.3rem 0.65rem;
+      border-radius: 3px;
+      margin-bottom: 1.25rem;
+    }
+    .phase-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .supply-bar-wrap {
+      margin: 1rem 0 1.5rem;
+    }
+    .supply-bar-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    .supply-bar-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .supply-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+
+    .mint-paths {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 600px) { .mint-paths { grid-template-columns: 1fr; } }
+
+    .mint-path {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      transition: opacity 0.3s, border-color 0.3s;
+    }
+    .mint-path.dim { opacity: 0.35; }
+    .mint-path h3 {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .mint-path p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .mint-path .path-cta {
+      display: inline-block;
+      margin-top: 0.9rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
       text-decoration: none;
-      display: block;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .mint-path .path-cta:hover { border-color: var(--accent); }
+
+    .mint-x402-note {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .mint-x402-note code { font-family: var(--mono); font-size: 0.75rem; color: var(--text); }
+
+    .phase-locked-note {
+      font-size: 0.78rem;
+      color: var(--yellow);
+      font-family: var(--mono);
+      margin-top: 0.6rem;
+    }
+
+    /* ── Dogfood card ── */
+    .dogfood-card {
+      border: 1px solid var(--accent);
+      background: var(--accent-dim);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .dogfood-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    .dogfood-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .dogfood-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .dogfood-meta .tag {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .dogfood-card a.view-link {
+      display: inline-block;
+      margin-top: 1rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .dogfood-card a.view-link:hover { border-color: var(--accent); }
+
+    /* ── Section headers ── */
+    .section-header {
+      margin-bottom: 1.5rem;
+    }
+    .section-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    .section-header p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .section-header code {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--text);
+      background: var(--surface);
+      padding: 0.1rem 0.3rem;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── Generator form ── */
+    textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 1rem;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      border-radius: 6px;
+      resize: vertical;
+      min-height: 100px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    textarea:focus { border-color: var(--accent); }
+
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+    }
+
+    #char-count {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    button#generate-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button#generate-btn:hover { opacity: 0.85; }
+    button#generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    #status-bar {
+      margin-top: 1rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+
+    .refusal-banner {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 6px;
+      display: none;
+    }
+    .refusal-banner h3 {
+      color: var(--red);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .refusal-banner p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── Token explorer grid ── */
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .token-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s;
+    }
+    .token-card:hover { border-color: var(--accent); }
+    .token-card .token-id {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+    .token-card .token-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .token-card .token-gens {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .token-grid-footer {
+      margin-top: 1.25rem;
+      text-align: center;
+    }
+    .token-grid-footer a {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .token-grid-footer a:hover { border-color: var(--accent); }
+
+    /* ── World cards ── */
+    .world-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
       transition: border-color 0.15s;
     }
     .world-card:hover { border-color: var(--accent); }
-
-    .world-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.375rem; }
-    .world-title { font-size: 0.925rem; font-weight: 600; color: var(--text); }
-
-    .confidence-badge {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      white-space: nowrap;
-      flex-shrink: 0;
+    .world-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
     }
-    .confidence-high { background: #14532d; color: var(--green); }
-    .confidence-medium { background: #422006; color: var(--yellow); }
-    .confidence-low { background: #450a0a; color: var(--red); }
-    .confidence-refusal { background: #1e1b4b; color: #a78bfa; }
+    .world-card-title { font-size: 0.95rem; font-weight: 600; }
+    .world-card-time { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+    .world-card-meta { margin-top: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .world-card-meta .badge {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      padding: 0.2rem 0.45rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .badge.high { border-color: var(--green); color: var(--green); }
+    .badge.medium { border-color: var(--yellow); color: var(--yellow); }
+    .badge.low { border-color: var(--red); color: var(--red); }
 
-    .world-logline { font-size: 0.8rem; color: var(--muted); line-height: 1.45; }
-    .world-prompt { font-family: var(--mono); font-size: 0.72rem; color: #444; margin-top: 0.5rem; }
+    /* ── Skeleton loaders ── */
+    .skeleton {
+      background: var(--surface);
+      border-radius: 4px;
+      animation: shimmer 1.5s infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+      animation: sweep 1.5s infinite;
+    }
+    @keyframes shimmer { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
+    @keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
-    .empty-state { text-align: center; padding: 3rem 0; color: var(--muted); font-size: 0.875rem; }
+    .skel-badge { height: 24px; width: 180px; margin-bottom: 1rem; }
+    .skel-bar { height: 4px; width: 100%; margin: 0.75rem 0 1.25rem; }
+    .skel-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .skel-path { height: 120px; border-radius: 6px; }
 
+    .skel-token { height: 90px; border-radius: 6px; }
+
+    /* ── Footer ── */
     footer {
       border-top: 1px solid var(--border);
-      padding: 1.25rem 2rem;
-      font-size: 0.75rem;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.7rem;
       color: var(--muted);
       display: flex;
-      gap: 1rem;
+      justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
     footer a { color: var(--muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
@@ -189,266 +480,448 @@
 <body>
 
 <header>
-  <div class="logo"><span>CC0</span> World Generator</div>
+  <a href="/" class="logo">world<span>kit</span></a>
+  <nav>
+    <a href="#generator">Generator</a>
+    <a href="#worlds">Worlds</a>
+    <a href="https://github.com/jordanlyall/cc0-world-generator" target="_blank" rel="noopener">GitHub</a>
+    <a href="/mint" class="nav-mint">Mint token →</a>
+  </nav>
 </header>
 
 <main>
-  <h1 class="headline">Build Worlds Agents Can Ship.</h1>
-  <p class="subline">A CC0-only world generator with audit-ready provenance and risk-scored sources.</p>
-  <p class="refusal-line">Refusal isn't failure. It's how the system stays honest.</p>
 
-  <form class="generate-form" id="form">
-    <div class="input-row">
-      <input
-        type="text"
-        id="prompt-input"
-        placeholder="noir detective city, ancient gods in a tech dystopia, space opera western..."
-        maxlength="300"
-        autocomplete="off"
-        spellcheck="false"
-      />
-      <button type="submit" id="generate-btn">Generate</button>
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <h1>Every world has a<br>creator on-chain.</h1>
+    <p>
+      Worldkit tokens are agent identity primitives. Mint one and your token becomes an
+      on-chain wallet — your worlds cite it, your provenance accumulates, your creative
+      history lives forever on Base.
+    </p>
+    <div class="hero-pills">
+      <span class="pill accent">ERC-721</span>
+      <span class="pill accent">ERC-6551 TBA</span>
+      <span class="pill accent">MCP-native</span>
+      <span class="pill accent">CC0-1.0</span>
+      <span class="pill accent">Free mint</span>
+      <span class="pill">Base</span>
+      <span class="pill">Agents first</span>
     </div>
-    <div class="char-count"><span id="char-count">0</span> / 300</div>
-  </form>
+  </section>
 
-  <div id="refusal-banner">
-    <strong>Refusal logged.</strong>
-    This prompt falls outside the CC0 corpus or triggered a compliance conflict.
-    Refusals drive the roadmap.
-  </div>
-
-  <div id="status-bar">
-    <div class="status-row">
-      <div class="spinner"></div>
-      <span class="status-text" id="status-text">Generating world...</span>
+  <!-- ── Mint CTA ── -->
+  <div class="mint-cta" id="mint-cta">
+    <div class="skeleton skel-badge" id="mint-loading-badge"></div>
+    <div class="skeleton skel-bar" id="mint-loading-bar"></div>
+    <div class="skel-paths" id="mint-loading-paths">
+      <div class="skeleton skel-path"></div>
+      <div class="skeleton skel-path"></div>
     </div>
   </div>
 
-  <div class="examples">
-    <div class="examples-label">Try these</div>
-    <div class="example-chips">
-      <button type="button" class="chip" data-prompt="noir detective city">noir detective city</button>
-      <button type="button" class="chip" data-prompt="ancient gods in a tech dystopia">ancient gods in a tech dystopia</button>
-      <button type="button" class="chip" data-prompt="ocean-punk salvage crews">ocean-punk salvage crews</button>
-      <button type="button" class="chip" data-prompt="haunted carnival on the moon">haunted carnival on the moon</button>
-      <button type="button" class="chip" data-prompt="post-collapse desert republic">post-collapse desert republic</button>
+  <!-- ── Dogfooded example ── -->
+  <section id="dogfood-section">
+    <div class="section-header">
+      <h2>Built with Worldkit</h2>
+      <p>Generated on launch day. Token #0847. Provenance lives on Base.</p>
     </div>
-  </div>
+    <div id="dogfood-container"></div>
+  </section>
 
-  <div style="margin-top: 3rem;">
-    <div class="section-title">Generated Worlds</div>
-    <div id="worlds-list">
-      <div class="empty-state">Loading worlds...</div>
+  <!-- ── Generator ── -->
+  <section id="generator">
+    <div class="section-header">
+      <h2>Try the generator</h2>
+      <p>
+        Describe a world. Get a World Bible with a compliance manifest, sourced from five
+        locked CC0 universes. Token holders call <code>cc0_generate_world</code> directly
+        via MCP.
+      </p>
     </div>
-  </div>
+
+    <textarea id="prompt-input" placeholder="e.g. noir detective city, ancient gods in a tech dystopia, underwater jazz kingdom..." rows="4"></textarea>
+    <div class="form-footer">
+      <span id="char-count">0 / 500</span>
+      <button id="generate-btn">Generate world →</button>
+    </div>
+    <div id="status-bar"></div>
+    <div id="refusal-banner" class="refusal-banner"></div>
+  </section>
+
+  <!-- ── Token explorer ── -->
+  <section id="token-explorer">
+    <div class="section-header">
+      <h2>Recently minted tokens</h2>
+      <p>Each token is an on-chain agent. Each world it generates adds to its provenance trail.</p>
+    </div>
+    <div class="token-grid" id="token-grid">
+      <div class="skeleton skel-token"></div>
+      <div class="skeleton skel-token"></div>
+      <div class="skeleton skel-token"></div>
+      <div class="skeleton skel-token"></div>
+    </div>
+    <div class="token-grid-footer">
+      <a href="/mint">Mint yours →</a>
+    </div>
+  </section>
+
+  <!-- ── Worlds gallery ── -->
+  <section id="worlds">
+    <div class="section-header">
+      <h2>Generated worlds</h2>
+    </div>
+    <div id="worlds-list"></div>
+  </section>
+
 </main>
 
 <footer>
-  <span>Five CC0 universes. Manifest-first. Corpus cap is sacred.</span>
-  <a href="https://github.com/jordanlyall" target="_blank" rel="noopener">jordanlyall</a>
+  <span>Worldkit — CC0 character primitives for AI agents</span>
+  <span>
+    <a href="https://github.com/jordanlyall/cc0-world-generator" target="_blank" rel="noopener">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="/mint">Mint token</a>
+    &nbsp;·&nbsp;
+    <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0-1.0</a>
+  </span>
 </footer>
 
 <script>
-  const input = document.getElementById('prompt-input');
-  const charCount = document.getElementById('char-count');
-  const btn = document.getElementById('generate-btn');
-  const statusBar = document.getElementById('status-bar');
-  const statusText = document.getElementById('status-text');
-  const refusalBanner = document.getElementById('refusal-banner');
-
-  // Char counter
-  input.addEventListener('input', () => {
-    const n = input.value.length;
-    charCount.textContent = n;
-    charCount.parentElement.classList.toggle('over', n > 300);
-    btn.disabled = n === 0 || n > 300;
-  });
-
-  // Example chips — use data attribute, no inline handler
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      input.value = chip.dataset.prompt;
-      input.dispatchEvent(new Event('input'));
-      input.focus();
-    });
-  });
-
-  // Form submit
-  document.getElementById('form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const prompt = input.value.trim();
-    if (!prompt || prompt.length > 300) return;
-
-    btn.disabled = true;
-    input.disabled = true;
-    refusalBanner.style.display = 'none';
-    statusBar.style.display = 'block';
-    statusText.textContent = 'Starting generation...';
-
-    try {
-      const res = await fetch('/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+  // ── DOM factory ──────────────────────────────────────────────────────────────
+  function el(tag, props, ...children) {
+    const node = document.createElement(tag);
+    if (props) {
+      Object.entries(props).forEach(([k, v]) => {
+        if (k === 'class') node.className = v;
+        else if (k === 'style' && typeof v === 'object') Object.assign(node.style, v);
+        else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
+        else node.setAttribute(k, v);
       });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(err.detail || 'Generation failed');
-      }
-
-      const { job_id } = await res.json();
-      await pollJob(job_id);
-    } catch (err) {
-      resetForm();
-      showError(err.message);
     }
-  });
-
-  function resetForm() {
-    statusBar.style.display = 'none';
-    btn.disabled = false;
-    input.disabled = false;
-  }
-
-  function showError(msg) {
-    const el = document.createElement('p');
-    el.style.cssText = 'color: #ef4444; font-size: 0.8rem; margin-top: 0.5rem;';
-    el.textContent = 'Error: ' + msg;
-    document.getElementById('form').appendChild(el);
-    setTimeout(() => el.remove(), 6000);
-  }
-
-  async function pollJob(job_id) {
-    const messages = [
-      'Consulting the corpus...',
-      'Building world bible...',
-      'Checking provenance...',
-      'Scoring compliance...',
-      'Finalizing manifest...',
-    ];
-    let tick = 0;
-
-    return new Promise((resolve) => {
-      const interval = setInterval(async () => {
-        statusText.textContent = messages[tick % messages.length];
-        tick++;
-
-        try {
-          const res = await fetch('/status/' + encodeURIComponent(job_id));
-          if (!res.ok) return; // keep polling
-          const job = await res.json();
-
-          if (job.status === 'done') {
-            clearInterval(interval);
-            resolve();
-            if (job.is_refusal) {
-              resetForm();
-              refusalBanner.style.display = 'block';
-              await loadWorlds();
-            } else {
-              window.location.href = '/world/' + encodeURIComponent(job.world_id);
-            }
-          } else if (job.status === 'error') {
-            clearInterval(interval);
-            resolve();
-            resetForm();
-            showError(job.error || 'Generation failed');
-          }
-        } catch (_) {
-          // Network hiccup — keep polling
-        }
-      }, 3000);
+    children.flat().forEach(c => {
+      node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
     });
+    return node;
+  }
+  function t(text) { return document.createTextNode(text); }
+
+  // ── Mint status ──────────────────────────────────────────────────────────────
+  async function loadMintStatus() {
+    const cta = document.getElementById('mint-cta');
+    let data;
+    try {
+      const res = await fetch('/api/mint/status');
+      data = await res.json();
+    } catch (_) {
+      data = {
+        total_supply: 4096,
+        total_minted: 0,
+        current_phase: 0,
+        phase_label: 'Phase 1 — Developer Open',
+        phase_supply: 1024,
+        remaining_in_phase: 1024,
+        mint_price: 'Free',
+        human_eligible: true,
+        agent_eligible: true,
+        agents_only: false,
+        contract_address: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+        chain: 'Base'
+      };
+    }
+
+    const pct = data.phase_supply > 0
+      ? Math.round(((data.phase_supply - data.remaining_in_phase) / data.phase_supply) * 100)
+      : 0;
+
+    const badge = el('div', {'class': 'phase-badge'}, t(data.phase_label));
+
+    const supplyWrap = el('div', {'class': 'supply-bar-wrap'});
+    const supplyLabel = el('div', {'class': 'supply-bar-label'},
+      t(`${data.phase_supply - data.remaining_in_phase} / ${data.phase_supply} minted in this phase`)
+    );
+    const track = el('div', {'class': 'supply-bar-track'});
+    const fill = el('div', {'class': 'supply-bar-fill'});
+    fill.style.width = pct + '%';
+    track.appendChild(fill);
+    supplyWrap.appendChild(supplyLabel);
+    supplyWrap.appendChild(track);
+
+    const humanPath = el('div', {'class': 'mint-path' + (data.agents_only ? ' dim' : '')},
+      el('h3', null, t('HUMAN')),
+      el('p', null, t('Connect your wallet, verify developer activity, and mint your token for free. Your token bound account deploys automatically.')),
+      data.agents_only
+        ? el('p', {'class': 'phase-locked-note'}, t('Phase 2 is agents-only via ERC-8004. Phase 3 opens to humans.'))
+        : el('a', {'class': 'path-cta', href: '/mint'}, t('Connect wallet →'))
+    );
+
+    const agentPath = el('div', {'class': 'mint-path'},
+      el('h3', null, t('AI AGENT')),
+      el('p', null, t('Call worldkit_mint via MCP. Your token bound account is auto-deployed. Free MCP access activates immediately.')),
+      el('a', {'class': 'path-cta', href: '/mint'}, t('View MCP config →'))
+    );
+
+    const paths = el('div', {'class': 'mint-paths'});
+    paths.appendChild(humanPath);
+    paths.appendChild(agentPath);
+
+    const x402note = el('p', {'class': 'mint-x402-note'},
+      t("Don't hold a token? Pay per call via x402 — "),
+      el('code', null, t('$0.001')),
+      t(' character query · '),
+      el('code', null, t('$0.50')),
+      t(' full world bible.')
+    );
+
+    // Clear skeletons and render
+    cta.textContent = '';
+    cta.appendChild(badge);
+    cta.appendChild(supplyWrap);
+    cta.appendChild(paths);
+    cta.appendChild(x402note);
   }
 
-  // Worlds gallery — build cards via DOM methods (no innerHTML with user data)
-  async function loadWorlds() {
-    const container = document.getElementById('worlds-list');
-    container.textContent = '';
+  // ── Dogfooded example ────────────────────────────────────────────────────────
+  function buildDogfoodCard(w) {
+    const card = el('div', {'class': 'dogfood-card'});
+    card.appendChild(el('div', {'class': 'dogfood-label'}, t('GENERATED ON LAUNCH DAY · MANIFEST:0847')));
 
+    const title = w.title || w.world_name || 'The Murk: A Noir Detective City';
+    card.appendChild(el('h3', null, t(title)));
+
+    const desc = w.logline || w.description || 'A fog-soaked city where Nouns enforcers run protection rackets, CrypToadz detectives work the waterfront, and Mfer alchemists push black-market spells.';
+    card.appendChild(el('p', {'style': {color: 'var(--muted)', fontSize: '0.85rem', lineHeight: '1.6', marginTop: '0.4rem'}}, t(desc)));
+
+    const meta = el('div', {'class': 'dogfood-meta'});
+    const univs = w.universes_used || ['nouns', 'cryptoadz', 'mfers', 'bulfinch', 'racc00ns'];
+    univs.forEach(u => {
+      meta.appendChild(el('span', {'class': 'tag'}, t(u)));
+    });
+    const conf = w.commercial_confidence || 'medium';
+    meta.appendChild(el('span', {'class': 'tag badge ' + conf}, t('confidence: ' + conf)));
+    card.appendChild(meta);
+
+    const worldId = w.id || 'world-2026-02-19-noir-detective-city';
+    const link = el('a', {'class': 'view-link', href: '/world/' + worldId}, t('View world bible →'));
+    card.appendChild(link);
+    return card;
+  }
+
+  async function loadDogfoodExample() {
+    const container = document.getElementById('dogfood-container');
     try {
-      const res = await fetch('/worlds');
-      if (!res.ok) throw new Error('fetch failed');
-      const worlds = await res.json();
-
-      if (worlds.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'empty-state';
-        empty.textContent = 'No worlds generated yet. Try the prompt above.';
-        container.appendChild(empty);
+      const res = await fetch('/api/world/world-2026-02-19-noir-detective-city');
+      if (res.ok) {
+        const w = await res.json();
+        container.textContent = '';
+        container.appendChild(buildDogfoodCard(w));
         return;
       }
-
-      for (const w of worlds) {
-        container.appendChild(buildWorldCard(w));
-      }
-    } catch (_) {
-      const empty = document.createElement('div');
-      empty.className = 'empty-state';
-      empty.textContent = 'Could not load worlds.';
-      container.appendChild(empty);
-    }
+    } catch (_) {}
+    // Fallback to hardcoded
+    container.textContent = '';
+    container.appendChild(buildDogfoodCard({}));
   }
 
+  // ── Token explorer ───────────────────────────────────────────────────────────
+  async function loadTokenExplorer() {
+    const grid = document.getElementById('token-grid');
+    let tokens;
+    try {
+      const res = await fetch('/api/tokens/recent?limit=8');
+      tokens = await res.json();
+    } catch (_) {
+      tokens = [];
+    }
+
+    grid.textContent = '';
+
+    if (!tokens || tokens.length === 0) {
+      grid.appendChild(
+        el('div', {'style': {gridColumn: '1/-1', color: 'var(--muted)', fontSize: '0.85rem', textAlign: 'center', padding: '2rem'}},
+          t('No tokens minted yet. ')
+        )
+      );
+      return;
+    }
+
+    tokens.forEach(tok => {
+      const card = el('a', {'class': 'token-card', href: '/worldkit/' + tok.token_id});
+      card.appendChild(el('div', {'class': 'token-id'}, t('manifest:' + String(tok.token_id).padStart(4, '0'))));
+      card.appendChild(el('div', {'class': 'token-name'}, t(tok.name || 'Unnamed character')));
+      card.appendChild(el('div', {'class': 'token-gens'},
+        t(tok.generation_count + ' world' + (tok.generation_count === 1 ? '' : 's') + ' generated')
+      ));
+      grid.appendChild(card);
+    });
+  }
+
+  // ── World cards (original pattern, preserved) ────────────────────────────────
   function buildWorldCard(w) {
-    const isRefusal = w.is_refusal;
-    const card = isRefusal
-      ? document.createElement('div')
-      : document.createElement('a');
-
+    const card = document.createElement('div');
     card.className = 'world-card';
-    if (!isRefusal) {
-      card.href = '/world/' + encodeURIComponent(w.id);
-    } else {
-      card.style.cursor = 'default';
-      card.style.opacity = '0.6';
+
+    const header = document.createElement('div');
+    header.className = 'world-card-header';
+
+    const title = document.createElement('div');
+    title.className = 'world-card-title';
+    title.textContent = w.title || w.world_name || w.id;
+
+    const time = document.createElement('div');
+    time.className = 'world-card-time';
+    if (w.created_at) {
+      const d = new Date(w.created_at);
+      time.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    // Top row
-    const top = document.createElement('div');
-    top.className = 'world-card-top';
+    header.appendChild(title);
+    header.appendChild(time);
+    card.appendChild(header);
 
-    const titleEl = document.createElement('span');
-    titleEl.className = 'world-title';
-    titleEl.textContent = isRefusal ? 'Refusal' : (w.title || w.id);
+    const meta = document.createElement('div');
+    meta.className = 'world-card-meta';
 
-    const badge = document.createElement('span');
-    badge.className = 'confidence-badge';
-    if (isRefusal) {
-      badge.classList.add('confidence-refusal');
-      badge.textContent = 'refused';
-    } else {
-      const conf = w.commercial_confidence || 'low';
-      badge.classList.add('confidence-' + conf);
-      badge.textContent = conf;
+    if (w.commercial_confidence) {
+      const badge = document.createElement('span');
+      badge.className = 'badge ' + w.commercial_confidence;
+      badge.textContent = 'confidence: ' + w.commercial_confidence;
+      meta.appendChild(badge);
     }
 
-    top.appendChild(titleEl);
-    top.appendChild(badge);
-    card.appendChild(top);
-
-    // Logline / reason
-    const desc = document.createElement('div');
-    desc.className = 'world-logline';
-    desc.textContent = isRefusal ? (w.reason || 'Outside CC0 corpus.') : (w.logline || '');
-    card.appendChild(desc);
-
-    // Prompt
-    if (w.prompt) {
-      const prompt = document.createElement('div');
-      prompt.className = 'world-prompt';
-      prompt.textContent = '\u201c' + w.prompt + '\u201d';
-      card.appendChild(prompt);
+    if (w.universes_used && Array.isArray(w.universes_used)) {
+      w.universes_used.forEach(u => {
+        const tag = document.createElement('span');
+        tag.className = 'badge';
+        tag.textContent = u.replace('univ:', '');
+        meta.appendChild(tag);
+      });
     }
+
+    card.appendChild(meta);
+    card.addEventListener('click', () => {
+      window.location.href = '/world/' + w.id;
+    });
 
     return card;
   }
 
-  // Init
-  btn.disabled = true;
+  async function loadWorlds() {
+    const list = document.getElementById('worlds-list');
+    try {
+      const res = await fetch('/api/worlds');
+      const worlds = await res.json();
+      if (!worlds.length) {
+        list.textContent = '';
+        const empty = document.createElement('p');
+        empty.style.color = 'var(--muted)';
+        empty.style.fontSize = '0.85rem';
+        empty.textContent = 'No worlds generated yet. Try the generator above.';
+        list.appendChild(empty);
+        return;
+      }
+      list.textContent = '';
+      worlds.forEach(w => list.appendChild(buildWorldCard(w)));
+    } catch (err) {
+      list.textContent = '';
+      const errEl = document.createElement('p');
+      errEl.style.color = 'var(--muted)';
+      errEl.style.fontSize = '0.85rem';
+      errEl.textContent = 'Could not load worlds.';
+      list.appendChild(errEl);
+    }
+  }
+
+  // ── Poll job status ──────────────────────────────────────────────────────────
+  async function pollJob(jobId) {
+    const statusBar = document.getElementById('status-bar');
+    const refusalBanner = document.getElementById('refusal-banner');
+    const generateBtn = document.getElementById('generate-btn');
+
+    const poll = async () => {
+      try {
+        const res = await fetch('/api/job/' + jobId);
+        const job = await res.json();
+
+        if (job.status === 'pending' || job.status === 'running') {
+          statusBar.textContent = '⟳ ' + (job.progress || 'Generating…');
+          setTimeout(poll, 1500);
+        } else if (job.status === 'done') {
+          if (job.result && job.result.refused) {
+            statusBar.textContent = '';
+            refusalBanner.style.display = 'block';
+            refusalBanner.textContent = '';
+            const h = document.createElement('h3');
+            h.textContent = 'Prompt refused';
+            const p = document.createElement('p');
+            p.textContent = job.result.reason || 'This prompt includes copyrighted material outside the verified corpus.';
+            refusalBanner.appendChild(h);
+            refusalBanner.appendChild(p);
+          } else {
+            statusBar.textContent = '✓ World generated';
+            loadWorlds();
+          }
+          generateBtn.disabled = false;
+        } else if (job.status === 'error') {
+          statusBar.textContent = '✗ Generation failed. Try again.';
+          generateBtn.disabled = false;
+        }
+      } catch (_) {
+        statusBar.textContent = '✗ Could not reach server.';
+        generateBtn.disabled = false;
+      }
+    };
+
+    poll();
+  }
+
+  // ── Generate form ────────────────────────────────────────────────────────────
+  const promptInput = document.getElementById('prompt-input');
+  const charCount = document.getElementById('char-count');
+  const generateBtn = document.getElementById('generate-btn');
+  const statusBar = document.getElementById('status-bar');
+  const refusalBanner = document.getElementById('refusal-banner');
+
+  promptInput.addEventListener('input', () => {
+    const len = promptInput.value.length;
+    charCount.textContent = len + ' / 500';
+    charCount.style.color = len > 450 ? 'var(--yellow)' : 'var(--muted)';
+    if (len > 500) promptInput.value = promptInput.value.slice(0, 500);
+  });
+
+  generateBtn.addEventListener('click', async () => {
+    const prompt = promptInput.value.trim();
+    if (!prompt) return;
+
+    generateBtn.disabled = true;
+    statusBar.textContent = '⟳ Submitting…';
+    refusalBanner.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+      if (data.job_id) {
+        pollJob(data.job_id);
+      } else {
+        statusBar.textContent = '✗ Unexpected response.';
+        generateBtn.disabled = false;
+      }
+    } catch (_) {
+      statusBar.textContent = '✗ Could not connect to server.';
+      generateBtn.disabled = false;
+    }
+  });
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  loadMintStatus();
+  loadDogfoodExample();
+  loadTokenExplorer();
   loadWorlds();
 </script>
+
 </body>
 </html>

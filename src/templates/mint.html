@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mint — Worldkit</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface2: #1c1c1c;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #666;
+      --accent: #7c3aed;
+      --accent-dim: rgba(124, 58, 237, 0.15);
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo { font-size: 18px; font-weight: 700; color: var(--text); }
+    .logo span { color: var(--accent); }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .breadcrumb a { color: var(--muted); }
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb-sep { color: var(--border); }
+    .breadcrumb-current { color: var(--text); }
+
+    /* ── Layout ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    section { margin-bottom: 56px; }
+    h1 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    h2 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 16px; letter-spacing: 0.04em; text-transform: uppercase; }
+    p { color: var(--muted); margin-bottom: 12px; }
+
+    /* ── Phase status card ── */
+    .phase-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .phase-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .phase-badge.open { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .phase-badge.agents { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(124,58,237,0.3); }
+    .phase-badge.coming { background: rgba(102,102,102,0.15); color: var(--muted); border: 1px solid var(--border); }
+    .phase-title { font-size: 18px; font-weight: 700; }
+    .phase-desc { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+    .supply-bar-wrap { margin-bottom: 8px; }
+    .supply-bar-track {
+      width: 100%;
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .supply-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+    .supply-nums {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .supply-nums strong { color: var(--text); }
+
+    /* ── Phase timeline ── */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 600px) { .timeline { grid-template-columns: repeat(2, 1fr); } }
+    .timeline-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .timeline-item.active { border-color: var(--accent); }
+    .timeline-item.agents-gate { border-color: rgba(124,58,237,0.4); }
+    .tl-phase { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .tl-label { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .tl-supply { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .tl-tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .tl-tag.open { background: rgba(34,197,94,0.12); color: var(--green); }
+    .tl-tag.agents-only { background: var(--accent-dim); color: var(--accent); }
+    .tl-tag.soon { background: rgba(102,102,102,0.1); color: var(--muted); }
+    .tl-tag.reserve { background: rgba(102,102,102,0.1); color: var(--muted); }
+
+    /* ── Two-column mint paths ── */
+    .mint-paths {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 640px) { .mint-paths { grid-template-columns: 1fr; } }
+    .mint-path {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .mint-path.agent-path { border-color: rgba(124,58,237,0.4); }
+    .mint-path.dim { opacity: 0.45; }
+    .path-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .path-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+    .path-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .phase2-note {
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-top: 12px;
+    }
+
+    /* Wallet placeholder */
+    .wallet-placeholder {
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .wallet-placeholder .coming-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    /* ── Code / copy blocks ── */
+    .code-block {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 12px;
+      white-space: pre;
+      overflow-x: auto;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .code-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .code-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Copy button */
+    .copy-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--accent); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+    /* Tool call step */
+    .step-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 1px solid rgba(124,58,237,0.3);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-body { flex: 1; }
+    .step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .step-desc { font-size: 12px; color: var(--muted); }
+
+    /* ── Pricing table ── */
+    .pricing-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .pricing-table th, .pricing-table td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .pricing-table th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .pricing-table tr:last-child td { border-bottom: none; }
+    .price-val { color: var(--green); font-weight: 600; }
+    .price-free { color: var(--accent); font-weight: 700; }
+    .price-note { color: var(--muted); font-size: 12px; }
+
+    /* ── Contract table ── */
+    .contract-table { width: 100%; border-collapse: collapse; }
+    .contract-table th, .contract-table td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .contract-table th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .contract-table tr:last-child td { border-bottom: none; }
+    .addr-cell { display: flex; align-items: center; gap: 8px; }
+    .addr-val { color: var(--text); font-family: var(--mono); }
+    .addr-muted { color: var(--muted); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+
+    /* ── Loading / error ── */
+    .loading { color: var(--muted); font-size: 13px; }
+    .error-msg { color: var(--red); font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">world<span>kit</span>.ai</div>
+  <nav class="breadcrumb" aria-label="breadcrumb">
+    <a href="/">← Worldkit</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">mint</span>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ── Section 1: Page title + live phase status ── -->
+  <section id="status-section">
+    <h1>Manifest Token</h1>
+    <p style="margin-bottom:28px;">Every token is an on-chain agent identity. Hold a Manifest token and your agent gets free MCP access forever. Token Bound Account (ERC-6551) means the NFT IS the wallet — the creator, the signer, and the provenance anchor are the same object.</p>
+    <div id="phase-card" class="phase-card">
+      <span class="loading">Loading mint status…</span>
+    </div>
+  </section>
+
+  <!-- ── Section 2: Phase timeline ── -->
+  <section id="timeline-section">
+    <h2>Mint Phases</h2>
+    <div class="timeline" id="phase-timeline">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- ── Section 3: Two mint paths ── -->
+  <section id="paths-section">
+    <h2>How to Mint</h2>
+    <div class="mint-paths" id="mint-paths">
+      <!-- Populated by JS -->
+    </div>
+    <p style="margin-top:16px;font-size:12px;">Don't hold a token? Pay per call via x402 — <a href="#pricing">see pricing below</a>.</p>
+  </section>
+
+  <!-- ── Section 4: x402 pricing ── -->
+  <section id="pricing">
+    <h2>x402 Pay-Per-Use Pricing</h2>
+    <p>Non-holders pay per call via USDC on Base. Atomic, instant, no subscription.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+      <table class="pricing-table" id="pricing-table">
+        <!-- Populated by JS -->
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Section 5: Contract addresses ── -->
+  <section id="contracts-section">
+    <h2>Contracts</h2>
+    <p>Deployed on Base. All contracts open source.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+      <table class="contract-table" id="contract-table">
+        <!-- Populated by JS -->
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <a href="/">← Back to Worldkit</a>
+  &nbsp;·&nbsp;
+  <a href="/worldkit/0">View a token</a>
+  &nbsp;·&nbsp;
+  CC0-1.0 — No rights reserved.
+</footer>
+
+<script>
+  /* ── DOM factory (XSS-safe) ── */
+  function el(tag, attrs, ...children) {
+    const node = document.createElement(tag);
+    if (attrs) {
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'class') node.className = v;
+        else node.setAttribute(k, v);
+      }
+    }
+    for (const c of children) {
+      if (c) node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
+    return node;
+  }
+  function t(str) { return document.createTextNode(String(str)); }
+
+  /* ── Copy button ── */
+  function makeCopyBtn(text, label) {
+    const btn = el('button', { class: 'copy-btn', title: 'Copy to clipboard' });
+    btn.appendChild(t(label || '⎘'));
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add('copied');
+        btn.textContent = '✓ copied';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = label || '⎘';
+        }, 1800);
+      });
+    });
+    return btn;
+  }
+
+  /* ── Copyable code block ── */
+  function makeCodeBlock(labelText, codeText) {
+    const wrap = el('div', {});
+    const header = el('div', { class: 'code-block-header' });
+    header.appendChild(el('span', { class: 'code-label' }, labelText));
+    header.appendChild(makeCopyBtn(codeText, '⎘ copy'));
+    wrap.appendChild(header);
+    const pre = el('div', { class: 'code-block' });
+    pre.appendChild(t(codeText));
+    wrap.appendChild(pre);
+    return wrap;
+  }
+
+  /* ── Phase status card ── */
+  function renderPhaseCard(data) {
+    const card = el('div', {});
+
+    const header = el('div', { class: 'phase-header' });
+    const badgeClass = data.agents_only ? 'agents' : (data.current_phase <= 3 ? 'open' : 'coming');
+    const badgeText = data.agents_only ? 'Agents Only' : (data.phase_label || 'Phase ' + data.current_phase);
+    header.appendChild(el('span', { class: 'phase-badge ' + badgeClass }, badgeText));
+    header.appendChild(el('span', { class: 'phase-title' }, data.phase_label || 'Phase ' + data.current_phase));
+    card.appendChild(header);
+
+    const desc = el('p', { class: 'phase-desc' });
+    if (data.current_phase === 1) {
+      desc.appendChild(t('Open to developers. GitHub activity or deployed contracts required. One token per wallet. Humans and agents eligible.'));
+    } else if (data.current_phase === 2) {
+      desc.appendChild(t('Agents only. Gated via ERC-8004 on-chain agent registry. First NFT mint enforcing verified agent identity — humans apply in Phase 3.'));
+    } else if (data.current_phase === 3) {
+      desc.appendChild(t('Open to the public with anti-bot measures (wallet age, Civic liveness). 1-2 tokens per wallet.'));
+    } else {
+      desc.appendChild(t('Reserve allocation for developer grants, partnerships, and future integrations.'));
+    }
+    card.appendChild(desc);
+
+    const pct = data.total_supply > 0 ? Math.min(100, (data.total_minted / data.total_supply) * 100) : 0;
+    const barWrap = el('div', { class: 'supply-bar-wrap' });
+    const track = el('div', { class: 'supply-bar-track' });
+    const fill = el('div', { class: 'supply-bar-fill' });
+    fill.style.width = pct.toFixed(1) + '%';
+    track.appendChild(fill);
+    barWrap.appendChild(track);
+    card.appendChild(barWrap);
+
+    const nums = el('div', { class: 'supply-nums' });
+    const minted = el('span', {});
+    minted.appendChild(el('strong', {}, String(data.total_minted)));
+    minted.appendChild(t(' minted'));
+    nums.appendChild(minted);
+    const supply = el('span', {});
+    supply.appendChild(el('strong', {}, String(data.total_supply)));
+    supply.appendChild(t(' total supply'));
+    nums.appendChild(supply);
+    card.appendChild(nums);
+
+    return card;
+  }
+
+  /* ── Phase timeline ── */
+  function renderTimeline(data) {
+    const phases = [
+      { num: 1, label: 'Developer', supply: '1,024', tag: 'open', tagText: 'Open now' },
+      { num: 2, label: 'Agents Only', supply: '1,536', tag: 'agents-only', tagText: 'ERC-8004' },
+      { num: 3, label: 'Public', supply: '1,024', tag: 'soon', tagText: 'Coming' },
+      { num: 4, label: 'Reserve', supply: '512', tag: 'reserve', tagText: 'Reserved' },
+    ];
+    const container = document.getElementById('phase-timeline');
+    container.textContent = '';
+    for (const p of phases) {
+      const isActive = p.num === data.current_phase;
+      const isAgents = p.num === 2;
+      const item = el('div', {
+        class: 'timeline-item' + (isActive ? ' active' : '') + (isAgents ? ' agents-gate' : '')
+      });
+      item.appendChild(el('div', { class: 'tl-phase' }, 'Phase ' + p.num));
+      item.appendChild(el('div', { class: 'tl-label' }, p.label));
+      item.appendChild(el('div', { class: 'tl-supply' }, p.supply + ' tokens'));
+      item.appendChild(el('span', { class: 'tl-tag ' + p.tag }, p.tagText));
+      container.appendChild(item);
+    }
+  }
+
+  /* ── Mint paths ── */
+  function renderMintPaths(data) {
+    const container = document.getElementById('mint-paths');
+    container.textContent = '';
+
+    /* Human path */
+    const humanDim = data.agents_only === true;
+    const human = el('div', { class: 'mint-path' + (humanDim ? ' dim' : '') });
+    human.appendChild(el('div', { class: 'path-label' }, 'Human'));
+    human.appendChild(el('div', { class: 'path-title' }, 'Connect wallet, mint token'));
+    const humanDesc = el('p', { class: 'path-desc' });
+    humanDesc.appendChild(t('Hold a Manifest token and your wallet address becomes your MCP identity. Free tool calls forever — no subscription, no rate limits.'));
+    human.appendChild(humanDesc);
+
+    const walletPlaceholder = el('div', { class: 'wallet-placeholder' });
+    walletPlaceholder.appendChild(el('div', { class: 'coming-label' }, 'Wallet connection'));
+    walletPlaceholder.appendChild(t('Coming at launch — connect MetaMask or Coinbase Wallet to mint'));
+    human.appendChild(walletPlaceholder);
+
+    if (humanDim) {
+      const note = el('div', { class: 'phase2-note' });
+      note.appendChild(t('Phase 2 is agents-only via ERC-8004. Human minting resumes in Phase 3.'));
+      human.appendChild(note);
+    }
+    container.appendChild(human);
+
+    /* Agent path */
+    const agent = el('div', { class: 'mint-path agent-path' });
+    agent.appendChild(el('div', { class: 'path-label' }, 'AI Agent'));
+    agent.appendChild(el('div', { class: 'path-title' }, 'Call worldkit_mint via MCP'));
+
+    const agentDesc = el('p', { class: 'path-desc' });
+    agentDesc.appendChild(t('Wire Worldkit into your MCP config. Your agent calls '));
+    const code1 = el('code', {});
+    code1.appendChild(t('worldkit_mint'));
+    agentDesc.appendChild(code1);
+    agentDesc.appendChild(t(' — a Token Bound Account (ERC-6551) auto-deploys. The NFT IS the agent\'s on-chain address.'));
+    agent.appendChild(agentDesc);
+
+    const mcpConfig = `{
+  "mcpServers": {
+    "worldkit": {
+      "url": "https://cc0-world-generator-production.up.railway.app/mcp"
+    }
+  }
+}`;
+    agent.appendChild(makeCodeBlock('MCP Config', mcpConfig));
+
+    /* Step-by-step */
+    const steps = [
+      ['Add to MCP config', 'Paste the config above into your agent\'s MCP server list'],
+      ['Call worldkit_list_corpus', 'Verify the five CC0 universes are available'],
+      ['Call worldkit_mint', 'Pass your agent\'s signing address — TBA deploys on mint'],
+      ['Generate with provenance', 'Call cc0_generate_world — your TBA is cited in every manifest'],
+    ];
+    for (let i = 0; i < steps.length; i++) {
+      const row = el('div', { class: 'step-row' });
+      row.appendChild(el('div', { class: 'step-num' }, String(i + 1)));
+      const body = el('div', { class: 'step-body' });
+      body.appendChild(el('div', { class: 'step-title' }, steps[i][0]));
+      body.appendChild(el('div', { class: 'step-desc' }, steps[i][1]));
+      row.appendChild(body);
+      agent.appendChild(row);
+    }
+
+    container.appendChild(agent);
+  }
+
+  /* ── Pricing table ── */
+  function renderPricingTable() {
+    const rows = [
+      { op: 'Manifest token (mint)', price: 'Free', note: 'Gas only — Base network fees ~$0.01', free: true },
+      { op: 'Character query', price: '$0.001', note: 'Atomic, instant — per call' },
+      { op: 'Compliance manifest check', price: '$0.005', note: 'Schema validation + CC0 confidence score' },
+      { op: 'Provenance verification', price: '$0.01', note: 'On-chain lookup via WorldRegistry' },
+      { op: 'Full World Bible (Nexus escrow)', price: '$2 – $10', note: 'Escrow model, not x402 — fallible jobs' },
+      { op: 'Token holder (all operations)', price: 'Free forever', note: 'Hold Manifest token → no per-call fees', free: true },
+    ];
+    const table = document.getElementById('pricing-table');
+    table.textContent = '';
+    const thead = el('thead', {});
+    const hr = el('tr', {});
+    hr.appendChild(el('th', {}, 'Operation'));
+    hr.appendChild(el('th', {}, 'Price (USDC)'));
+    hr.appendChild(el('th', {}, 'Notes'));
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    const tbody = el('tbody', {});
+    for (const r of rows) {
+      const tr = el('tr', {});
+      tr.appendChild(el('td', {}, r.op));
+      const priceCell = el('td', { class: r.free ? 'price-free' : 'price-val' }, r.price);
+      tr.appendChild(priceCell);
+      tr.appendChild(el('td', { class: 'price-note' }, r.note));
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+  }
+
+  /* ── Contract table ── */
+  function renderContractTable(data) {
+    const contracts = [
+      {
+        name: 'CC0LootToken',
+        standard: 'ERC-721 + ERC-6551',
+        address: data.contract_address || '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+        note: 'Manifest NFT — auto-deploys TBA on mint',
+      },
+      {
+        name: 'WorldRegistry',
+        standard: 'Custom',
+        address: data.registry_address || '0x0165878A594ca255338adfa4d48449f69242Eb8F',
+        note: 'On-chain provenance ledger for world generation events',
+      },
+    ];
+    const table = document.getElementById('contract-table');
+    table.textContent = '';
+    const thead = el('thead', {});
+    const hr = el('tr', {});
+    hr.appendChild(el('th', {}, 'Contract'));
+    hr.appendChild(el('th', {}, 'Standard'));
+    hr.appendChild(el('th', {}, 'Address'));
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    const tbody = el('tbody', {});
+    for (const c of contracts) {
+      const tr = el('tr', {});
+      tr.appendChild(el('td', { style: 'font-weight:600' }, c.name));
+      tr.appendChild(el('td', { class: 'addr-muted' }, c.standard));
+      const addrCell = el('td', {});
+      const addrWrap = el('div', { class: 'addr-cell' });
+      const addrSpan = el('span', { class: 'addr-val' });
+      addrSpan.appendChild(t(c.address.slice(0, 10) + '…' + c.address.slice(-8)));
+      addrWrap.appendChild(addrSpan);
+      addrWrap.appendChild(makeCopyBtn(c.address));
+      addrCell.appendChild(addrWrap);
+      tr.appendChild(addrCell);
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+  }
+
+  /* ── Boot ── */
+  async function init() {
+    renderPricingTable();
+
+    let data = {
+      total_supply: 4096,
+      total_minted: 0,
+      current_phase: 1,
+      phase_label: 'Phase 1 — Developer Open',
+      agents_only: false,
+      contract_address: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+      registry_address: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
+    };
+
+    try {
+      const res = await fetch('/api/mint/status');
+      if (res.ok) {
+        const live = await res.json();
+        data = Object.assign(data, live);
+      }
+    } catch (_) { /* use defaults */ }
+
+    const card = document.getElementById('phase-card');
+    card.textContent = '';
+    card.appendChild(renderPhaseCard(data));
+
+    renderTimeline(data);
+    renderMintPaths(data);
+    renderContractTable(data);
+  }
+
+  init();
+</script>
+</body>
+</html>

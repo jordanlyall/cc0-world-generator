@@ -1,0 +1,38 @@
+{
+  "cryptoadz": [
+    {"tokenId": "6268", "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/19e2da3e7386091d29ca282ce34eceaa.png", "format": "png"},
+    {"tokenId": "2858", "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/b43696e46d8faeb8f2e789b00b00bfa1.png", "format": "png"},
+    {"tokenId": "977",  "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/a9e4d2841dfac4d7ee80214a72ec8c87.png", "format": "png"},
+    {"tokenId": "1785", "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/b7128da3cf1fe5e09ac09508287f0b14.png", "format": "png"},
+    {"tokenId": "748",  "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/6d8b6b3cbd4d37f7b645620e4099a247.png", "format": "png"},
+    {"tokenId": "2832", "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/b715601683e4bbd19e73a77d76591826.png", "format": "png"},
+    {"tokenId": "2951", "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/35ecba5cab0c939aa51f101341d70eba.png", "format": "png"},
+    {"tokenId": "2342", "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/c7019550d4d440fa13c164fc42f059df.png", "format": "png"},
+    {"tokenId": "3210", "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/d33d28846a651dacfc70d4288f83bdf1.png", "format": "png"},
+    {"tokenId": "3834", "imageUrl": "https://i2c.seadn.io/ethereum/0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6/e9e48494e845612aeda08d9165290649.png", "format": "png"}
+  ],
+  "mfers": [
+    {"tokenId": "7840", "imageUrl": "https://i2c.seadn.io/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/f2363e0990a2922d18fda7dc3141ec4a.png", "format": "png"},
+    {"tokenId": "1775", "imageUrl": "https://i2c.seadn.io/base/0x7780380d9af63bbe0cd3698f8b8ecd885080096d/ea45fdfe07cbee45f9e6d177083649fb.png", "format": "png"},
+    {"tokenId": "3611", "imageUrl": "https://i2c.seadn.io/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/63e8a9eb234bfdc5954cef4936946cb3.png", "format": "png"},
+    {"tokenId": "4508", "imageUrl": "https://i2c.seadn.io/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/37c893daa566ecaeafdb4fc1e24793bc.png", "format": "png"},
+    {"tokenId": "1261", "imageUrl": "https://i2c.seadn.io/base/0x7780380d9af63bbe0cd3698f8b8ecd885080096d/8c79403d2d7af65d39d7b9ff7bcccf02.png", "format": "png"},
+    {"tokenId": "3646", "imageUrl": "https://i2c.seadn.io/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/c296bcf3450d22437fc20a414203a937.png", "format": "png"},
+    {"tokenId": "4904", "imageUrl": "https://i2c.seadn.io/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/a0575b6baa164177fcbfc36a26067ac0.png", "format": "png"},
+    {"tokenId": "1962", "imageUrl": "https://i2c.seadn.io/base/0x7780380d9af63bbe0cd3698f8b8ecd885080096d/677e7d38ebd910f6116baac55e58867d.png", "format": "png"},
+    {"tokenId": "850",  "imageUrl": "https://i2c.seadn.io/base/0x7780380d9af63bbe0cd3698f8b8ecd885080096d/5f10b746f27f91626457ecd6e7da9f6a.png", "format": "png"},
+    {"tokenId": "74",   "imageUrl": "https://i2c.seadn.io/base/0xfb2532e32330204bba8beffbae2f51dcfa04c692/ea893207527cb41922b6332a718619a2.png", "format": "png"}
+  ],
+  "racc00ns": [
+    {"tokenId": "40", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/83cfa6c9c53e48adf9cde0cee340c07b.jpeg", "format": "jpeg"},
+    {"tokenId": "47", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/7edf7e8c670b9ac85869d389c85cf9ab.jpeg", "format": "jpeg"},
+    {"tokenId": "57", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/af70ca21d6f8a09f598745247f4e43a0.jpeg", "format": "jpeg"},
+    {"tokenId": "51", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/6453c209f425e6977d51edb0af8ac60b.jpeg", "format": "jpeg"},
+    {"tokenId": "10", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/940fa86d9f1da799a36820afeec53af5.jpeg", "format": "jpeg"},
+    {"tokenId": "95", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/21fb1956e40953566e1879f98902e087.jpeg", "format": "jpeg"},
+    {"tokenId": "12", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/1016ea336d75438105d13573e63b5ead.jpeg", "format": "jpeg"},
+    {"tokenId": "74", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/d03afbd9302352a1170c572ccc2ddbc6.jpeg", "format": "jpeg"},
+    {"tokenId": "53", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/b4cb7f6d91afab65ab8964d6bcdba64b.jpeg", "format": "jpeg"},
+    {"tokenId": "93", "imageUrl": "https://i2c.seadn.io/ethereum/0xebfdf99872ffe985eefb15bc1ae3a55f827cfc90/4ce04f5fcc9df9cd120e85df8fa898c4.jpeg", "format": "jpeg"}
+  ]
+}

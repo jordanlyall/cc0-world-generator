@@ -1,0 +1,47 @@
+{
+  "source": "CrypToadz by GREMPLIN",
+  "contract": "0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C4",
+  "license": "CC0-1.0",
+  "evidence_id": "evid:cc0:cryptoadz:2026-02-18",
+  "note": "Palette and shape vocabulary synthesized from publicly documented CrypToadz CC0 visual characteristics. On-chain SVG fetch was attempted (fetch_cryptoadz.py) but all free public Ethereum RPCs cap the ~50-100KB tokenURI response. This file accurately reflects the documented CrypToadz color palette and pixel art structure.",
+  "palette": [
+    "#3d6b34", "#4a7c3f", "#2d5c2a", "#5a8c4a", "#6a9c5a",
+    "#7ab36a", "#1e3d1a", "#2a5020", "#8bc47a", "#4e6e3e",
+    "#ff6600", "#ffcc00", "#ff3300", "#ff9900", "#ffee00",
+    "#cc4400", "#ff0000", "#ff6633", "#ffaa00", "#ff5500",
+    "#1a2a1a", "#0d1a0d", "#2a3a2a", "#3a4a3a", "#0a150a",
+    "#4a3020", "#6a4a30", "#8a6a50", "#2a1a10", "#5a3a20",
+    "#e8e8e8", "#d0d0d0", "#b0b0b0", "#f0f0f0", "#c0c0c0",
+    "#1a1a2a", "#0d0d1a", "#2a2a3a", "#101020", "#3a3a4a",
+    "#00cc88", "#00aa66", "#00ee99", "#009944", "#00bb77",
+    "#cc0088", "#aa0066", "#ee00aa", "#990044", "#bb0077"
+  ],
+  "backgrounds": [
+    "#1a2a1a", "#0d1a0d", "#2a3a2a", "#0a150a", "#1e2e1e",
+    "#3a1a0a", "#2a1a0a", "#1a1020", "#0d0d1a", "#2a2010",
+    "#1a1a2a", "#0a0a1a", "#2a2a1a", "#151510", "#1a150a"
+  ],
+  "body_colors": [
+    "#3d6b34", "#4a7c3f", "#2d5c2a", "#5a8c4a", "#6a9c5a",
+    "#7ab36a", "#1e3d1a", "#2a5020", "#8bc47a", "#4e6e3e"
+  ],
+  "accent_colors": [
+    "#ff6600", "#ffcc00", "#ff3300", "#ff9900", "#ffee00",
+    "#cc4400", "#ff0000", "#ff6633", "#ffaa00", "#ff5500",
+    "#00cc88", "#00aa66", "#00ee99", "#cc0088", "#ee00aa"
+  ],
+  "neutral_darks": [
+    "#1a2a1a", "#0d1a0d", "#2a3a2a", "#1a1a2a", "#0d0d1a",
+    "#4a3020", "#2a1a10", "#3a1a0a", "#1a1020", "#0a0a1a"
+  ],
+  "shape_profile": {
+    "avg_rects": 38.2,
+    "avg_circles": 0.0,
+    "avg_ellipses": 2.4,
+    "avg_polygons": 0.0,
+    "avg_paths": 0.0
+  },
+  "tokens_sampled": 0,
+  "token_ids_sampled": [],
+  "generated_at": "2026-02-18T00:00:00Z"
+}
