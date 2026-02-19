@@ -7,7 +7,7 @@
       "license": "CC0-1.0",
       "evidence_id": "evid:cc0:nouns:2026-02-18",
       "risk_flags": ["risk:trademark:nouns:medium"],
-      "notes": "Glasses + boxy head visual identity. Trademark risk is medium — use visual primitives, not the brand name as an in-world proper noun."
+      "notes": "Blocky pixel-art humanoids: large rectangular head, oversized colored glasses as the defining trait, boxy torso, stubby limbs. Characters read small but weighty — chunky proportion, not tall. Flat bold color palette, no gradients. Swap the glasses, change the person — glasses are the identity primitive. Characters read as civic, earnest, slightly absurd. Trademark risk medium: use the visual primitives, not 'Nouns' as an in-world proper noun."
     },
     {
       "id": "univ:cryptoadz",
@@ -16,7 +16,7 @@
       "license": "CC0-1.0",
       "evidence_id": "evid:cc0:cryptoadz:2026-02-18",
       "risk_flags": ["risk:trademark:cryptoadz:medium", "risk:meme_derivative:pepe:medium"],
-      "notes": "Amphibian humanoids, swamp aesthetic, outsider-trickster archetype. Pepe adjacency — never reference the meme directly."
+      "notes": "Squat amphibian humanoids: wide flat heads, large eyes, mottled green-grey skin, hunched posture. Swamp and decay aesthetic — tattered clothing, found objects. Palette is rust, moss, and murk: desaturated greens and browns, nothing clean. Characters are tricksters and survivors, not heroes. Environment reads wet, marginal, liminal. Pepe adjacency is in the visual lineage — never name or reference the meme directly, but do not pretend the lineage isn't there."
     },
     {
       "id": "univ:mfers",
@@ -25,7 +25,7 @@
       "license": "CC0-1.0",
       "evidence_id": "evid:cc0:mfers:2026-02-18",
       "risk_flags": ["risk:meme_derivative:stick_figure:medium", "risk:governance:sartoshi_exit:medium"],
-      "notes": "Stick-figure humanoids, skateboard/cig aesthetic, ironic-outsider tone. Governance ambiguity: Sartoshi's CC0 declaration predates his exit. Medium confidence, not high."
+      "notes": "Minimal stick-figure humanoids: circle head, single-line body, simple limb geometry. No face detail beyond an occasional cigarette. Clothing is the character differentiation — hoodies, hats, accessories drawn in the same flat line weight as the body. Desaturated streetwear palette: greys, washed blacks, muted color pops. Skate and streetwear culture, ironic detachment, anti-heroic. Governance ambiguity: Sartoshi's CC0 declaration predates his exit — medium confidence, not high. Always cite accordingly."
     },
     {
       "id": "univ:myth",
@@ -43,7 +43,7 @@
       "license": "CC0-1.0",
       "evidence_id": "evid:cc0:racc00ns:2026-02-18",
       "risk_flags": [],
-      "notes": "Self-declared CC0 by Jordan Lyall (copyright holder). Raccoon-inspired characters: masked faces, foragers, scavengers, nocturnal tricksters. Name encodes CC0 in the double-zero. High confidence — no ambiguity."
+      "notes": "Self-declared CC0 by Jordan Lyall (copyright holder). Raccoon-inspired humanoids: dark facial mask marking, ringed tail, nimble forager builds. Earth tones and shadow palette — deep charcoal, warm brown, occasional flash of amber or green eye-shine. Characters are nocturnal, opportunistic, highly adaptable — trickster-adjacent but pragmatic rather than chaotic. Scavenger aesthetic: repurposed materials, jury-rigged gear, nothing wasted. High confidence — no ambiguity."
     }
   ]
 }

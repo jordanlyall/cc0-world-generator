@@ -1,0 +1,53 @@
+{
+  "_meta": {
+    "purpose": "Pre-drafted corpus expansion candidates. Notes written to pass the render test: could the model generate a character from this description without relying on training priors? Add to corpus.json after verifying CC0 status and evidence capture.",
+    "render_test": "Each notes field must provide: visual geometry, palette/color temperature, posture/proportion cue, tonal archetype, and any hard constraints.",
+    "status": "draft — verify CC0 declarations before promoting to corpus"
+  },
+  "candidates": [
+    {
+      "id": "univ:xcopy",
+      "name": "XCOPY",
+      "kind": "artist_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:xcopy:TBD",
+      "risk_flags": ["risk:trademark:xcopy:medium"],
+      "cc0_confidence": "high",
+      "cc0_notes": "XCOPY has been explicit about CC0. Verify declaration source and capture evidence before promoting.",
+      "notes": "Distorted humanoid figures rendered in high-contrast glitch aesthetics: fragmented geometry, chromatic aberration, scanline artifacts, corrupted pixel blocks. Palette is harsh — electric blue, acid green, sickly yellow against near-black. Characters are skeletal or dissolving, caught mid-disintegration. Death, surveillance, and digital decay are the recurring motifs. No heroism — figures are witnesses or victims, not agents. Environment reads as terminal: screens, voids, the moment before signal loss. Never reference the artist by name as an in-world entity."
+    },
+    {
+      "id": "univ:loot",
+      "name": "Loot (for Adventurers)",
+      "kind": "text_primitive_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:loot:TBD",
+      "risk_flags": [],
+      "cc0_confidence": "high",
+      "cc0_notes": "Dom Hofmann explicit CC0 declaration. On-chain. Verify and capture evidence.",
+      "notes": "No visual canon — Loot is pure text primitives. Eight item categories per token: weapon, chest armor, head armor, waist armor, foot armor, hand armor, necklace, ring. No associated imagery exists. Characters must be inferred entirely from equipment loadout: what they carry defines who they are. Tone is high fantasy with corrupted suffix logic — 'Grave Wand of Perfection,' 'Divine Robe of the Fox.' World aesthetic is dark medieval, archetypal, pre-visual. Palette should read deep and desaturated: slate, bone, aged leather, tarnished metal. The constraint is generative — build the character from inventory, not appearance. This is the original 'primitives for builders' CC0 project and is directly on-thesis for agent-native world generation."
+    },
+    {
+      "id": "univ:blitmap",
+      "name": "Blitmap",
+      "kind": "nft_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:blitmap:TBD",
+      "risk_flags": [],
+      "cc0_confidence": "high",
+      "cc0_notes": "Dom Hofmann explicit CC0 declaration. Verify and capture evidence.",
+      "notes": "16-color pixel art with strict palette constraints — each piece uses exactly four colors pulled from a 'family' palette. Characters and scenes are small and dense: retro game aesthetic with surrealist subject matter. Visual grammar is flat, bold, hard-limited — no gradients, no anti-aliasing, hard pixel edges only. Tonal range is wide: cosmic, pastoral, military, absurd, all within the same flat rendering style. The palette constraint is the identity — 'this is a Blitmap character' means visually locked to four colors. When mixing with other universes, Blitmap elements should retain their palette discipline as a distinguishing feature."
+    },
+    {
+      "id": "univ:autoglyphs",
+      "name": "Autoglyphs",
+      "kind": "generative_art",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:autoglyphs:TBD",
+      "risk_flags": ["risk:trademark:larvalabs:low"],
+      "cc0_confidence": "medium",
+      "cc0_notes": "Larva Labs CC0 declaration — verify specifics. Some Larva Labs projects have had license ambiguity. Confirm Autoglyphs specifically before promoting.",
+      "notes": "On-chain generative ASCII art — characters composed entirely of typographic symbols arranged in algorithmic patterns. No figurative representation. Visual grammar is structural: symmetry, repetition, density variation, void space. Palette is monochrome by nature — black symbols on white, or the inverse. If referenced in a world, Autoglyphs entities are not people — they are entities made of pattern, living sigils, beings whose form is their function. They do not have bodies; they have configurations. Conceptually resonant with agent-native generation: the token IS the character specification, no rendering layer required."
+    }
+  ]
+}
