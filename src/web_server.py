@@ -850,6 +850,238 @@ async def worldkit_page(token_id: int):
     return HTMLResponse(content=html)
 
 
+@app.get("/manifests/{token_id}", response_class=HTMLResponse)
+async def manifests_page(token_id: int):
+    """Human-readable token manifest page — creative ledger for a minted token."""
+    if token_id < 1:
+        raise HTTPException(status_code=404, detail="Token IDs start at 1.")
+
+    # Attempt on-chain reads; fall through gracefully if Anvil not reachable
+    try:
+        token_data = _fetch_token_data(token_id)
+    except Exception:
+        token_data = {
+            "token_id": token_id,
+            "generation_count": 0,
+            "generations": [],
+            "owner": None,
+            "minted_at": None,
+            "tba_address": None,
+        }
+
+    # Validate token exists (owner == None + generation_count == 0 for unminted)
+    # We treat a token as non-existent if the on-chain call succeeded but returned
+    # the zero address for owner — i.e. truly unminted.
+    owner = token_data.get("owner")
+    ZERO = "0x0000000000000000000000000000000000000000"
+    if owner is not None and owner.lower() == ZERO:
+        raise HTTPException(status_code=404, detail=f"Token #{token_id} has not been minted.")
+
+    gen_count = token_data.get("generation_count", 0) or 0
+    generations = token_data.get("generations", []) or []
+
+    # ── Build generation log HTML ──
+    PLACEHOLDER = "On-chain data available after mainnet deployment"
+    if not generations:
+        gen_log_html = (
+            '<div class="empty-state">'
+            '<div class="empty-state-text">No worlds generated yet.</div>'
+            '<div class="empty-state-sub">Call cc0_generate_world via MCP to begin.</div>'
+            '</div>'
+        )
+    else:
+        rows = []
+        for i, g in enumerate(generations, 1):
+            universes = g.get("universes_used", [])
+            pills = "".join(f'<span class="univ-pill">{u}</span>' for u in universes)
+
+            ipfs_cid = g.get("ipfs_cid", "")
+            if ipfs_cid:
+                world_link = f'<a class="gen-world-link" href="/worlds/{ipfs_cid}">{ipfs_cid[:16]}…</a>'
+            else:
+                world_link = '<span class="gen-cid">—</span>'
+
+            block = g.get("block_height", "")
+            ts_raw = g.get("timestamp", "")
+            try:
+                ts_int = int(ts_raw) if ts_raw else 0
+                if ts_int > 0:
+                    from datetime import datetime, timezone
+                    ts_display = datetime.fromtimestamp(ts_int, tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+                else:
+                    ts_display = "—"
+            except Exception:
+                ts_display = str(ts_raw) if ts_raw else "—"
+
+            rows.append(
+                f'<tr>'
+                f'<td class="gen-index">#{i:04d}</td>'
+                f'<td>{pills}</td>'
+                f'<td>{world_link}</td>'
+                f'<td class="gen-block">{block or "—"}</td>'
+                f'<td class="gen-timestamp">{ts_display}</td>'
+                f'</tr>'
+            )
+
+        rows_html = "\n".join(rows)
+        gen_log_html = (
+            '<table class="gen-table">'
+            '<thead><tr>'
+            '<th>#</th>'
+            '<th>Universes</th>'
+            '<th>World</th>'
+            '<th>Block</th>'
+            '<th>Timestamp</th>'
+            '</tr></thead>'
+            f'<tbody>{rows_html}</tbody>'
+            '</table>'
+        )
+
+    # ── Build universe fingerprint HTML ──
+    if generations:
+        universe_counts: dict = {}
+        for g in generations:
+            for u in (g.get("universes_used") or []):
+                universe_counts[u] = universe_counts.get(u, 0) + 1
+
+        items = sorted(universe_counts.items(), key=lambda x: -x[1])
+        cards = []
+        for univ_id, count in items:
+            label = "generation" if count == 1 else "generations"
+            cards.append(
+                f'<div class="fingerprint-item">'
+                f'<div class="fingerprint-name">{univ_id}</div>'
+                f'<div class="fingerprint-count">{count}</div>'
+                f'<div class="fingerprint-label">{label}</div>'
+                f'</div>'
+            )
+        fingerprint_html = (
+            '<div class="fingerprint">'
+            '<div class="section-heading">Universe Fingerprint</div>'
+            f'<div class="fingerprint-grid">{"".join(cards)}</div>'
+            '</div>'
+        )
+    else:
+        fingerprint_html = ""
+
+    # ── Resolve display values ──
+    token_id_padded = f"{token_id:04d}"
+    headline = (
+        f"This token has generated {gen_count} world{'s' if gen_count != 1 else ''}."
+        if gen_count > 0
+        else "This token hasn't generated any worlds yet."
+    )
+
+    tba = token_data.get("tba_address")
+    owner_display = owner if owner and owner.lower() != ZERO else None
+    minted_raw = token_data.get("minted_at")
+
+    try:
+        minted_int = int(minted_raw) if minted_raw is not None else 0
+    except Exception:
+        minted_int = 0
+
+    if minted_int > 0:
+        from datetime import datetime, timezone
+        minted_display = datetime.fromtimestamp(minted_int, tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        minted_note = ""
+    else:
+        minted_display = "—"
+        minted_note = PLACEHOLDER
+
+    tba_note = "" if (tba and tba.lower() != ZERO) else PLACEHOLDER
+    owner_note = "" if owner_display else PLACEHOLDER
+
+    template_path = TEMPLATES_DIR / "manifests.html"
+    if not template_path.exists():
+        raise HTTPException(status_code=500, detail="manifests.html template not found")
+
+    html = template_path.read_text()
+    html = html.replace("__TOKEN_ID_PADDED__", token_id_padded)
+    html = html.replace("__TOKEN_ID__", str(token_id))
+    html = html.replace("__HEADLINE__", headline)
+    html = html.replace("__TBA_ADDRESS__", tba if (tba and tba.lower() != ZERO) else "—")
+    html = html.replace("__TBA_NOTE__", tba_note)
+    html = html.replace("__OWNER_ADDRESS__", owner_display if owner_display else "—")
+    html = html.replace("__OWNER_NOTE__", owner_note)
+    html = html.replace("__MINTED_AT__", minted_display)
+    html = html.replace("__MINTED_NOTE__", minted_note)
+    html = html.replace("__GENERATION_COUNT__", str(gen_count))
+    html = html.replace("__GENERATION_LOG_HTML__", gen_log_html)
+    html = html.replace("__FINGERPRINT_HTML__", fingerprint_html)
+
+    return HTMLResponse(content=html)
+
+
+@app.get("/manifests/{token_id}.json")
+async def manifests_json(token_id: int):
+    """Agent endpoint — structured JSON manifest for a token. CORS open."""
+    if token_id < 1:
+        raise HTTPException(status_code=404, detail="Token IDs start at 1.")
+
+    try:
+        token_data = _fetch_token_data(token_id)
+    except Exception:
+        token_data = {
+            "token_id": token_id,
+            "generation_count": 0,
+            "generations": [],
+            "owner": None,
+            "minted_at": None,
+            "tba_address": None,
+        }
+
+    owner = token_data.get("owner")
+    ZERO = "0x0000000000000000000000000000000000000000"
+    if owner is not None and owner.lower() == ZERO:
+        raise HTTPException(status_code=404, detail=f"Token #{token_id} has not been minted.")
+
+    generations = token_data.get("generations", []) or []
+
+    # Universe fingerprint
+    universe_fingerprint: dict = {}
+    last_generated_at: int = 0
+    for g in generations:
+        for u in (g.get("universes_used") or []):
+            universe_fingerprint[u] = universe_fingerprint.get(u, 0) + 1
+        try:
+            ts = int(g.get("timestamp", 0) or 0)
+            if ts > last_generated_at:
+                last_generated_at = ts
+        except Exception:
+            pass
+
+    PLACEHOLDER = "On-chain data available after mainnet deployment"
+    minted_at_raw = token_data.get("minted_at")
+    try:
+        minted_at_int = int(minted_at_raw) if minted_at_raw is not None else 0
+    except Exception:
+        minted_at_int = 0
+
+    tba = token_data.get("tba_address")
+    owner_out = owner if (owner and owner.lower() != ZERO) else None
+
+    payload = {
+        "token_id": token_id,
+        "tba_address": tba if (tba and tba.lower() != ZERO) else None,
+        "owner_address": owner_out,
+        "minted_at": minted_at_int if minted_at_int > 0 else None,
+        "minted_at_note": None if minted_at_int > 0 else PLACEHOLDER,
+        "generation_count": token_data.get("generation_count", 0) or 0,
+        "last_generated_at": last_generated_at if last_generated_at > 0 else None,
+        "universe_fingerprint": universe_fingerprint,
+        "generations": generations,
+        "manifest_url": f"/manifests/{token_id}",
+        "json_url": f"/manifests/{token_id}.json",
+    }
+
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        content=payload,
+        headers={"Access-Control-Allow-Origin": "*"},
+    )
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _find_world_file(world_id: str) -> Optional[Path]:
