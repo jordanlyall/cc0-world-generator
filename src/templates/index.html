@@ -624,6 +624,7 @@
 
 <footer>
   <span>Worldkit — CC0 character primitives for AI agents</span>
+  <span id="footer-counter"></span>
   <span>
     <a href="https://github.com/jordanlyall/cc0-world-generator" target="_blank" rel="noopener">GitHub</a>
     &nbsp;·&nbsp;
@@ -1044,11 +1045,26 @@
     }
   });
 
+  // ── Generation counter ───────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const res = await fetch('/api/stats');
+      if (!res.ok) return;
+      const data = await res.json();
+      const counter = document.getElementById('footer-counter');
+      if (counter && data.worlds_generated != null) {
+        const n = Number(data.worlds_generated).toLocaleString();
+        counter.textContent = n + ' world' + (data.worlds_generated === 1 ? '' : 's') + ' generated';
+      }
+    } catch (_) {}
+  }
+
   // ── Init ─────────────────────────────────────────────────────────────────────
   loadMintStatus();
   loadDogfoodExample();
   loadTokenExplorer();
   loadWorlds();
+  loadStats();
 </script>
 
 </body>

@@ -26,7 +26,7 @@ if _env_path.exists():
                 os.environ[_k] = _v
 
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -172,7 +172,88 @@ async def world_page(world_id: str):
     # Embed the world JSON into the template
     world_json = json.dumps(data, indent=2)
     html = html.replace("__WORLD_JSON__", world_json)
+
+    # Build og: meta values
+    wb = data.get("world_bible", {})
+    raw_title = wb.get("title") or "CC0 World"
+    raw_logline = wb.get("logline") or "A CC0 world generated for AI agents."
+    og_title = f"{raw_title} — Worldkit"
+    og_desc = raw_logline[:160]
+    canonical_id = data.get("id", world_id)
+    # Canonical URL: use RAILWAY_PUBLIC_DOMAIN if set, else relative
+    base_url = ""
+    domain = os.environ.get("RAILWAY_PUBLIC_DOMAIN") or os.environ.get("RAILWAY_STATIC_URL")
+    if domain:
+        base_url = f"https://{domain}"
+    og_url = f"{base_url}/world/{canonical_id}"
+    og_image = f"{base_url}/og/world/{canonical_id}"
+
+    html = html.replace("__OG_TITLE__", og_title)
+    html = html.replace("__OG_DESC__", og_desc)
+    html = html.replace("__OG_URL__", og_url)
+    html = html.replace("__OG_IMAGE__", og_image)
     return HTMLResponse(content=html)
+
+@app.get("/og/world/{world_id:path}")
+async def og_image(world_id: str):
+    """Return an SVG og:image for a world — Twitter/OG card preview."""
+    world_file = _find_world_file(world_id)
+    if not world_file:
+        raise HTTPException(status_code=404, detail="World not found")
+
+    data = json.loads(world_file.read_text())
+    wb = data.get("world_bible", {})
+    title = (wb.get("title") or "Untitled World")[:48]
+    logline = (wb.get("logline") or "")[:100]
+    universe = (wb.get("source_universe") or data.get("prompt") or "")[:40]
+
+    # Wrap logline at ~55 chars for SVG tspan rendering
+    words = logline.split()
+    lines, cur = [], ""
+    for w in words:
+        if len(cur) + len(w) + 1 > 55:
+            lines.append(cur.rstrip())
+            cur = w + " "
+        else:
+            cur += w + " "
+    if cur.strip():
+        lines.append(cur.rstrip())
+    lines = lines[:3]  # max 3 lines
+
+    logline_tspans = "".join(
+        f'<tspan x="60" dy="{28 if i else 0}">{_xml_escape(l)}</tspan>'
+        for i, l in enumerate(lines)
+    )
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d0d"/>
+      <stop offset="100%" style="stop-color:#1a1020"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- accent bar -->
+  <rect x="0" y="0" width="6" height="630" fill="#7c3aed"/>
+  <!-- wordmark -->
+  <text x="60" y="70" font-family="monospace" font-size="18" fill="#7c3aed" letter-spacing="3">WORLDKIT</text>
+  <!-- universe pill -->
+  <rect x="58" y="90" width="{min(len(universe)*9+24, 400)}" height="28" rx="14" fill="#1c1c1c" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="70" y="109" font-family="monospace" font-size="13" fill="#888">{_xml_escape(universe)}</text>
+  <!-- title -->
+  <text x="60" y="210" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="64" font-weight="700" fill="#e8e8e8">{_xml_escape(title)}</text>
+  <!-- logline -->
+  <text x="60" y="310" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="26" fill="#aaa" font-weight="400">{logline_tspans}</text>
+  <!-- cc0 badge -->
+  <text x="60" y="580" font-family="monospace" font-size="14" fill="#444">CC0-1.0 · Free for any use</text>
+  <text x="1140" y="580" text-anchor="end" font-family="monospace" font-size="14" fill="#444">worldkit.ai</text>
+</svg>"""
+    return Response(content=svg, media_type="image/svg+xml")
+
+
+def _xml_escape(s: str) -> str:
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+
 
 @app.get("/portrait-test", response_class=HTMLResponse)
 async def portrait_test():
@@ -219,6 +300,12 @@ async def api_corpus():
     sys.path.insert(0, str(Path(__file__).parent))
     from generate import load_corpus
     return JSONResponse(content=load_corpus())
+
+@app.get("/api/stats")
+async def api_stats():
+    """Total worlds generated (non-refusal world files on disk)."""
+    count = len(list(WORLDS_DIR.glob("world-*.json")))
+    return {"worlds_generated": count}
 
 @app.get("/api/status")
 async def api_status():
