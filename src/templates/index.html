@@ -45,6 +45,7 @@
     nav { display: flex; align-items: center; gap: 1.5rem; }
     nav a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.15s; }
     nav a:hover { color: var(--text); }
+    nav .nav-about { color: var(--muted); }
     nav .nav-mint {
       color: var(--accent);
       border: 1px solid var(--accent);
@@ -430,9 +431,20 @@
       border: 1px solid var(--border);
       color: var(--muted);
     }
-    .badge.high { border-color: var(--green); color: var(--green); }
-    .badge.medium { border-color: var(--yellow); color: var(--yellow); }
-    .badge.low { border-color: var(--red); color: var(--red); }
+    .world-card-attribution {
+      margin-top: 0.9rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+    .world-card-attribution a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s, opacity 0.15s;
+    }
+    .world-card-attribution a:hover { border-color: var(--muted); opacity: 1; }
 
     /* ── Skeleton loaders ── */
     .skeleton {
@@ -484,6 +496,7 @@
   <nav>
     <a href="#generator">Generator</a>
     <a href="#worlds">Worlds</a>
+    <a href="/about">About</a>
     <a href="https://github.com/jordanlyall/cc0-world-generator" target="_blank" rel="noopener">GitHub</a>
     <a href="/mint" class="nav-mint">Mint token →</a>
   </nav>
@@ -692,9 +705,17 @@
     univs.forEach(u => {
       meta.appendChild(el('span', {'class': 'tag'}, t(u)));
     });
-    const conf = w.commercial_confidence || 'medium';
-    meta.appendChild(el('span', {'class': 'tag badge ' + conf}, t('confidence: ' + conf)));
     card.appendChild(meta);
+
+    const attrDog = document.createElement('div');
+    attrDog.className = 'world-card-attribution';
+    const dogManifestId = w.id || 'world-2026-02-19-noir-detective-city';
+    attrDog.appendChild(document.createTextNode('CC0 sources verified \u00b7 '));
+    const dogManifestLink = document.createElement('a');
+    dogManifestLink.href = '/world/' + dogManifestId;
+    dogManifestLink.textContent = 'manifest:' + dogManifestId;
+    card.appendChild(attrDog);
+    attrDog.appendChild(dogManifestLink);
 
     const worldId = w.id || 'world-2026-02-19-noir-detective-city';
     const link = el('a', {'class': 'view-link', href: '/world/' + worldId}, t('View world bible →'));
@@ -774,13 +795,6 @@
     const meta = document.createElement('div');
     meta.className = 'world-card-meta';
 
-    if (w.commercial_confidence) {
-      const badge = document.createElement('span');
-      badge.className = 'badge ' + w.commercial_confidence;
-      badge.textContent = 'confidence: ' + w.commercial_confidence;
-      meta.appendChild(badge);
-    }
-
     if (w.universes_used && Array.isArray(w.universes_used)) {
       w.universes_used.forEach(u => {
         const tag = document.createElement('span');
@@ -791,6 +805,18 @@
     }
 
     card.appendChild(meta);
+
+    const attr = document.createElement('div');
+    attr.className = 'world-card-attribution';
+    const manifestId = w.id || 'unknown';
+    attr.appendChild(document.createTextNode('CC0 sources verified \u00b7 '));
+    const manifestLink = document.createElement('a');
+    manifestLink.href = '/world/' + manifestId;
+    manifestLink.textContent = 'manifest:' + manifestId;
+    manifestLink.addEventListener('click', e => e.stopPropagation());
+    attr.appendChild(manifestLink);
+    card.appendChild(attr);
+
     card.addEventListener('click', () => {
       window.location.href = '/world/' + w.id;
     });

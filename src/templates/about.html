@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Worldkit</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #666;
+      --accent: #7c3aed;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); letter-spacing: 0.05em; }
+    .logo span { color: var(--accent); }
+
+    nav { display: flex; align-items: center; gap: 1.5rem; }
+    nav a {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    nav a:hover { color: var(--text); }
+    .nav-mint {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    main {
+      flex: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 4rem 2rem 5rem;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 2.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    section {
+      margin-bottom: 2.5rem;
+    }
+
+    section h2 {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.85rem;
+    }
+
+    section p {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: #c0c0c0;
+    }
+
+    section p + p {
+      margin-top: 1rem;
+    }
+
+    .confidence-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+    }
+
+    .confidence-table th {
+      text-align: left;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 0.75rem 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .confidence-table td {
+      padding: 0.6rem 0.75rem 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      color: #c0c0c0;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    .confidence-table tr:last-child td { border-bottom: none; }
+
+    .level {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      white-space: nowrap;
+      color: var(--text);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      font-size: 0.7rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">world<span>kit</span></a>
+  <nav>
+    <a href="/#generator">Generator</a>
+    <a href="/#worlds">Worlds</a>
+    <a href="/about">About</a>
+    <a href="https://github.com/jordanlyall/cc0-world-generator" target="_blank" rel="noopener">GitHub</a>
+    <a href="/mint" class="nav-mint">Mint token →</a>
+  </nav>
+</header>
+
+<main>
+  <h1>About Worldkit</h1>
+
+  <section>
+    <h2>What this is</h2>
+    <p>
+      Worldkit is a CC0 world generator. Give it a genre or theme — "noir detective city," "deep
+      ocean mythology," "post-collapse salvage punk" — and it produces a structured World Bible:
+      characters, factions, locations, tone, and a compliance manifest that traces every creative
+      element back to a verified public-domain or CC0 source.
+    </p>
+    <p>
+      The output is designed to be safe to build on commercially, by humans and AI agents alike.
+    </p>
+  </section>
+
+  <section>
+    <h2>The corpus</h2>
+    <p>
+      Every world is assembled from a locked set of verified CC0 universes. Currently seven are
+      included: Nouns, CrypToadz, mfers, racc00ns, XCOPY, Loot (for Adventurers), and
+      Bulfinch's Mythology (1855 edition, globally public domain). Each universe has a
+      corresponding evidence file recording the declaration source, date, and scope.
+      Nothing enters the corpus without a traceable license event.
+    </p>
+  </section>
+
+  <section>
+    <h2>How declaration quality is evaluated</h2>
+    <p>
+      Not all CC0 declarations are equal. Each universe in the corpus carries a
+      <strong>confidence level</strong> computed from its evidence chain — not set manually.
+      The logic is simple:
+    </p>
+
+    <table class="confidence-table">
+      <thead>
+        <tr>
+          <th>Level</th>
+          <th>What it means</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="level">high</td>
+          <td>Explicit CC0 declaration from the copyright holder (or clear public domain), primary
+          evidence captured, no trademark flags above low, no jurisdiction ambiguity.</td>
+        </tr>
+        <tr>
+          <td class="level">medium</td>
+          <td>CC0 confirmed but a trademark or meme-derivative flag is present, or the declaration
+          is strong but lacks a formal deed — community interpretation with documented basis.</td>
+        </tr>
+        <tr>
+          <td class="level">low</td>
+          <td>Any unresolved medium-or-higher risk flag, incomplete evidence chain, or
+          refusal-adjacent case. Do not build commercially without independent legal review.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Risk flags are never suppressed — only documented. If the generator cannot serve a
+      prompt safely from the corpus, it produces a refusal object instead of a world bible.
+      Every compliance manifest carries the full flag list regardless of confidence level.
+    </p>
+  </section>
+
+  <section>
+    <h2>For agents</h2>
+    <p>
+      Worldkit exposes a JSON API at <code style="font-family: var(--mono); font-size: 0.8rem; color: var(--accent);">/api/corpus</code> and
+      <code style="font-family: var(--mono); font-size: 0.8rem; color: var(--accent);">/api/world/{id}</code>.
+      World Bibles include a machine-readable compliance manifest with evidence IDs, risk flags,
+      and computed confidence — structured for agents that need to reason about IP provenance
+      before generating derivative work.
+    </p>
+  </section>
+</main>
+
+<footer>
+  <span>Worldkit — CC0 character primitives for AI agents</span>
+  <span>
+    <a href="https://github.com/jordanlyall/cc0-world-generator" target="_blank" rel="noopener">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="/mint">Mint token</a>
+  </span>
+</footer>
+
+</body>
+</html>

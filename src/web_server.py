@@ -608,6 +608,13 @@ async def api_mint_status():
     }
 
 
+@app.get("/about", response_class=HTMLResponse)
+async def about_page():
+    template_path = TEMPLATES_DIR / "about.html"
+    if not template_path.exists():
+        raise HTTPException(status_code=500, detail="about.html not found")
+    return HTMLResponse(content=template_path.read_text())
+
 @app.get("/mint", response_class=HTMLResponse)
 async def mint_page():
     template_path = TEMPLATES_DIR / "mint.html"
