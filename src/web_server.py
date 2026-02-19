@@ -26,7 +26,7 @@ if _env_path.exists():
                 os.environ[_k] = _v
 
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -156,6 +156,129 @@ async def status(job_id: str):
     if not job:
         raise HTTPException(status_code=404, detail="job not found")
     return job
+
+# ── API-prefixed aliases (used by the web frontend) ───────────────────────────
+
+@app.post("/api/generate")
+@limiter.limit("5/hour")
+async def api_generate(request: Request, req: GenerateRequest, background_tasks: BackgroundTasks):
+    """Alias of POST /generate — used by the web frontend."""
+    prompt = req.prompt.strip()
+    if not prompt:
+        raise HTTPException(status_code=400, detail="prompt is required")
+    if len(prompt) > 300:
+        raise HTTPException(status_code=400, detail="prompt must be 300 characters or fewer")
+
+    if _get_daily_count() >= DAILY_GENERATION_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Daily generation limit reached ({DAILY_GENERATION_LIMIT} worlds/day). Try again tomorrow.",
+        )
+
+    _increment_daily_count()
+    job_id = str(uuid.uuid4())
+    jobs[job_id] = {"status": "pending", "prompt": prompt}
+    background_tasks.add_task(run_generation, job_id, prompt)
+    return {"job_id": job_id}
+
+@app.get("/api/job/{job_id}")
+async def api_job(job_id: str):
+    """Alias of GET /status/{job_id} — used by the web frontend."""
+    job = jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    return job
+
+# ── Streaming generation ──────────────────────────────────────────────────────
+
+@app.post("/api/generate-stream")
+@limiter.limit("5/hour")
+async def generate_stream(request: Request, req: GenerateRequest):
+    """
+    SSE streaming endpoint for the web UI.
+    Streams tokens as they arrive, then saves the world and emits a 'done' event.
+    Keeps the existing job-queue path (/api/generate) intact for MCP/CLI clients.
+    """
+    import sys, re as _re
+    sys.path.insert(0, str(Path(__file__).parent))
+    from generate import load_corpus, build_system_prompt, build_user_prompt
+    from generate import validate_world, save_output, log_refusal
+
+    prompt = req.prompt.strip()
+    if not prompt:
+        raise HTTPException(status_code=400, detail="prompt is required")
+    if len(prompt) > 300:
+        raise HTTPException(status_code=400, detail="prompt must be 300 characters or fewer")
+
+    if _get_daily_count() >= DAILY_GENERATION_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Daily generation limit reached ({DAILY_GENERATION_LIMIT} worlds/day). Try again tomorrow.",
+        )
+
+    _increment_daily_count()
+
+    import anthropic as _anthropic
+
+    async def _stream_events():
+        try:
+            corpus = load_corpus()
+            client = _anthropic.Anthropic()
+
+            full_text = []
+
+            with client.messages.stream(
+                model="claude-sonnet-4-6",
+                max_tokens=8192,
+                system=build_system_prompt(corpus),
+                messages=[{"role": "user", "content": build_user_prompt(prompt)}],
+            ) as stream:
+                for text_chunk in stream.text_stream:
+                    full_text.append(text_chunk)
+                    payload = json.dumps({"type": "token", "text": text_chunk})
+                    yield f"data: {payload}\n\n"
+
+            raw = "".join(full_text).strip()
+            if raw.startswith("```"):
+                raw = _re.sub(r"^```[a-z]*\n?", "", raw)
+                raw = _re.sub(r"\n?```$", "", raw)
+
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError as e:
+                err_payload = json.dumps({"type": "error", "message": f"Model output was not valid JSON: {e}"})
+                yield f"data: {err_payload}\n\n"
+                return
+
+            validate_world(data)  # auto-corrects confidence in-place
+
+            if "refusal" in data:
+                log_refusal(data, prompt)
+
+            output_path = save_output(data, prompt)
+            world_id = data["id"]
+            is_refusal = "refusal" in data
+
+            done_payload = json.dumps({
+                "type": "done",
+                "world_id": world_id,
+                "is_refusal": is_refusal,
+                "refusal_reason": data.get("refusal", {}).get("reason", "") if is_refusal else None,
+            })
+            yield f"data: {done_payload}\n\n"
+
+        except Exception as exc:
+            err_payload = json.dumps({"type": "error", "message": str(exc)})
+            yield f"data: {err_payload}\n\n"
+
+    return StreamingResponse(
+        _stream_events(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",  # disable nginx buffering on Railway
+        },
+    )
 
 @app.get("/world/{world_id:path}", response_class=HTMLResponse)
 async def world_page(world_id: str):

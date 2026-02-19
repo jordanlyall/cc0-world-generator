@@ -961,47 +961,71 @@
     }
   }
 
-  // ── Poll job status ──────────────────────────────────────────────────────────
-  async function pollJob(jobId) {
+  // ── Streaming generation ──────────────────────────────────────────────────────
+  async function streamGenerate(prompt) {
     const statusBar = document.getElementById('status-bar');
     const refusalBanner = document.getElementById('refusal-banner');
     const generateBtn = document.getElementById('generate-btn');
+    let tokenCount = 0;
 
-    const poll = async () => {
-      try {
-        const res = await fetch('/api/job/' + jobId);
-        const job = await res.json();
-
-        if (job.status === 'pending' || job.status === 'running') {
-          statusBar.textContent = '⟳ ' + (job.progress || 'Generating…');
-          setTimeout(poll, 1500);
-        } else if (job.status === 'done') {
-          if (job.result && job.result.refused) {
-            statusBar.textContent = '';
-            refusalBanner.style.display = 'block';
-            refusalBanner.textContent = '';
-            const h = document.createElement('h3');
-            h.textContent = 'Prompt refused';
-            const p = document.createElement('p');
-            p.textContent = job.result.reason || 'This prompt includes copyrighted material outside the verified corpus.';
-            refusalBanner.appendChild(h);
-            refusalBanner.appendChild(p);
-          } else {
-            statusBar.textContent = '✓ World generated';
-            loadWorlds();
-          }
-          generateBtn.disabled = false;
-        } else if (job.status === 'error') {
-          statusBar.textContent = '✗ Generation failed. Try again.';
-          generateBtn.disabled = false;
+    return new Promise((resolve, reject) => {
+      fetch('/api/generate-stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      }).then(res => {
+        if (!res.ok) {
+          return res.json().then(err => { throw new Error(err.detail || 'Server error'); });
         }
-      } catch (_) {
-        statusBar.textContent = '✗ Could not reach server.';
-        generateBtn.disabled = false;
-      }
-    };
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-    poll();
+        const processChunk = ({ done, value }) => {
+          if (done) { resolve(); return; }
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const event = JSON.parse(line.slice(6));
+              if (event.type === 'token') {
+                tokenCount++;
+                statusBar.textContent = `⟳ Generating… (${tokenCount} tokens)`;
+              } else if (event.type === 'done') {
+                if (event.is_refusal) {
+                  statusBar.textContent = '';
+                  refusalBanner.style.display = 'block';
+                  refusalBanner.innerHTML = '';
+                  const h = document.createElement('h3');
+                  h.textContent = 'Prompt refused';
+                  const p = document.createElement('p');
+                  p.textContent = event.refusal_reason || 'This prompt includes copyrighted material outside the verified corpus.';
+                  refusalBanner.appendChild(h);
+                  refusalBanner.appendChild(p);
+                } else {
+                  statusBar.textContent = '✓ World generated';
+                  loadWorlds();
+                }
+                generateBtn.disabled = false;
+                resolve();
+              } else if (event.type === 'error') {
+                statusBar.textContent = '✗ ' + event.message;
+                generateBtn.disabled = false;
+                reject(new Error(event.message));
+              }
+            } catch (_) {}
+          }
+          return reader.read().then(processChunk);
+        };
+        return reader.read().then(processChunk);
+      }).catch(err => {
+        statusBar.textContent = '✗ ' + (err.message || 'Could not connect to server.');
+        generateBtn.disabled = false;
+        reject(err);
+      });
+    });
   }
 
   // ── Generate form ────────────────────────────────────────────────────────────
@@ -1023,25 +1047,13 @@
     if (!prompt) return;
 
     generateBtn.disabled = true;
-    statusBar.textContent = '⟳ Submitting…';
+    statusBar.textContent = '⟳ Connecting…';
     refusalBanner.style.display = 'none';
 
     try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json();
-      if (data.job_id) {
-        pollJob(data.job_id);
-      } else {
-        statusBar.textContent = '✗ Unexpected response.';
-        generateBtn.disabled = false;
-      }
+      await streamGenerate(prompt);
     } catch (_) {
-      statusBar.textContent = '✗ Could not connect to server.';
-      generateBtn.disabled = false;
+      // errors handled inside streamGenerate
     }
   });
 
