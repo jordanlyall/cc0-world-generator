@@ -501,12 +501,8 @@
     </p>
     <div class="hero-pills">
       <span class="pill accent">ERC-721</span>
-      <span class="pill accent">ERC-6551 TBA</span>
       <span class="pill accent">MCP-native</span>
       <span class="pill accent">CC0-1.0</span>
-      <span class="pill accent">Free mint</span>
-      <span class="pill">Base</span>
-      <span class="pill">Agents first</span>
     </div>
   </section>
 
@@ -532,11 +528,9 @@
   <!-- ── Generator ── -->
   <section id="generator">
     <div class="section-header">
-      <h2>Try the generator</h2>
+      <h2>Generate the next one</h2>
       <p>
-        Describe a world. Get a World Bible with a compliance manifest, sourced from five
-        locked CC0 universes. Token holders call <code>cc0_generate_world</code> directly
-        via MCP.
+        Describe a world. Token holders call <code>cc0_generate_world</code> directly via MCP.
       </p>
     </div>
 
@@ -612,6 +606,7 @@
     let data;
     try {
       const res = await fetch('/api/mint/status');
+      if (!res.ok) throw new Error('status ' + res.status);
       data = await res.json();
     } catch (_) {
       data = {
@@ -729,6 +724,7 @@
     let tokens;
     try {
       const res = await fetch('/api/tokens/recent?limit=8');
+      if (!res.ok) throw new Error('status ' + res.status);
       tokens = await res.json();
     } catch (_) {
       tokens = [];
@@ -737,11 +733,7 @@
     grid.textContent = '';
 
     if (!tokens || tokens.length === 0) {
-      grid.appendChild(
-        el('div', {'style': {gridColumn: '1/-1', color: 'var(--muted)', fontSize: '0.85rem', textAlign: 'center', padding: '2rem'}},
-          t('No tokens minted yet. ')
-        )
-      );
+      document.getElementById('token-explorer').style.display = 'none';
       return;
     }
 
