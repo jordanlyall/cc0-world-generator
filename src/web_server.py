@@ -8,30 +8,69 @@ Usage: uvicorn src.web_server:app --reload --port 8080
 import json
 import uuid
 import asyncio
-from datetime import datetime, timezone
+import os
+from datetime import datetime, timezone, date
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, BackgroundTasks, HTTPException
+# Load .env if present (local dev) — force-set values from file, overriding empty env vars
+_env_path = Path(__file__).parent.parent / ".env"
+if _env_path.exists():
+    for _line in _env_path.read_text().splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _v = _line.split("=", 1)
+            _k, _v = _k.strip(), _v.strip()
+            if _v:  # only set if .env has a non-empty value
+                os.environ[_k] = _v
+
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
 ROOT = Path(__file__).parent.parent
 WORLDS_DIR = ROOT / "worlds"
 TEMPLATES_DIR = Path(__file__).parent / "templates"
+STATIC_DIR = Path(__file__).parent / "static"
 WORLDS_DIR.mkdir(exist_ok=True)
+STATIC_DIR.mkdir(exist_ok=True)
 
 # ── In-memory job store ───────────────────────────────────────────────────────
 # Maps job_id -> {"status": "pending|running|done|error", "world_id": ..., "error": ...}
 
 jobs: dict[str, dict] = {}
 
+# ── Rate limiting ─────────────────────────────────────────────────────────────
+
+DAILY_GENERATION_LIMIT = int(os.environ.get("DAILY_GENERATION_LIMIT", "100"))
+
+_daily_counter: dict[str, int] = {}  # {"YYYY-MM-DD": count}
+
+def _get_daily_count() -> int:
+    today = date.today().isoformat()
+    return _daily_counter.get(today, 0)
+
+def _increment_daily_count() -> None:
+    today = date.today().isoformat()
+    _daily_counter[today] = _daily_counter.get(today, 0) + 1
+    # Prune old days to avoid unbounded growth
+    for k in list(_daily_counter.keys()):
+        if k != today:
+            del _daily_counter[k]
+
 # ── App ───────────────────────────────────────────────────────────────────────
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="CC0 World Generator", version="0.2.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # ── Models ────────────────────────────────────────────────────────────────────
 
@@ -90,13 +129,21 @@ async def index():
     return HTMLResponse(content=template_path.read_text())
 
 @app.post("/generate")
-async def generate(req: GenerateRequest, background_tasks: BackgroundTasks):
+@limiter.limit("5/hour")
+async def generate(request: Request, req: GenerateRequest, background_tasks: BackgroundTasks):
     prompt = req.prompt.strip()
     if not prompt:
         raise HTTPException(status_code=400, detail="prompt is required")
     if len(prompt) > 300:
         raise HTTPException(status_code=400, detail="prompt must be 300 characters or fewer")
 
+    if _get_daily_count() >= DAILY_GENERATION_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Daily generation limit reached ({DAILY_GENERATION_LIMIT} worlds/day). Try again tomorrow.",
+        )
+
+    _increment_daily_count()
     job_id = str(uuid.uuid4())
     jobs[job_id] = {"status": "pending", "prompt": prompt}
     background_tasks.add_task(run_generation, job_id, prompt)
@@ -125,6 +172,12 @@ async def world_page(world_id: str):
     world_json = json.dumps(data, indent=2)
     html = html.replace("__WORLD_JSON__", world_json)
     return HTMLResponse(content=html)
+
+@app.get("/portrait-test", response_class=HTMLResponse)
+async def portrait_test():
+    template_path = TEMPLATES_DIR / "portrait-test.html"
+    return HTMLResponse(content=template_path.read_text())
+
 
 @app.get("/worlds")
 async def list_worlds():
