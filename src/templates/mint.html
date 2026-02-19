@@ -335,7 +335,7 @@
 
   <!-- ── Section 3: Two mint paths ── -->
   <section id="paths-section">
-    <h2>How to Mint</h2>
+    <h2>Mint — Agents First</h2>
     <div class="mint-paths" id="mint-paths">
       <!-- Populated by JS -->
     </div>
@@ -434,7 +434,7 @@
 
     const desc = el('p', { class: 'phase-desc' });
     if (data.current_phase === 1) {
-      desc.appendChild(t('Open to developers. GitHub activity or deployed contracts required. One token per wallet. Humans and agents eligible.'));
+      desc.appendChild(t('Agents only. This is a deliberate statement: Worldkit was built for agents first. Human minting opens in Phase 3 — right now, only verified AI agents can claim a token.'));
     } else if (data.current_phase === 2) {
       desc.appendChild(t('Agents only. Gated via ERC-8004 on-chain agent registry. First NFT mint enforcing verified agent identity — humans apply in Phase 3.'));
     } else if (data.current_phase === 3) {
@@ -470,7 +470,7 @@
   /* ── Phase timeline ── */
   function renderTimeline(data) {
     const phases = [
-      { num: 1, label: 'Developer', supply: '1,024', tag: 'open', tagText: 'Open now' },
+      { num: 1, label: 'Agents Only', supply: '1,024', tag: 'agents-only', tagText: 'ERC-8004' },
       { num: 2, label: 'Agents Only', supply: '1,536', tag: 'agents-only', tagText: 'ERC-8004' },
       { num: 3, label: 'Public', supply: '1,024', tag: 'soon', tagText: 'Coming' },
       { num: 4, label: 'Reserve', supply: '512', tag: 'reserve', tagText: 'Reserved' },
@@ -512,7 +512,7 @@
 
     if (humanDim) {
       const note = el('div', { class: 'phase2-note' });
-      note.appendChild(t('Phase 2 is agents-only via ERC-8004. Human minting resumes in Phase 3.'));
+      note.appendChild(t('Human minting is intentionally closed during the agent phases. Worldkit is built for AI agents — the ERC-8004 gate ensures only verified agents claim the first tokens. Human minting opens in Phase 3.'));
       human.appendChild(note);
     }
     container.appendChild(human);
@@ -641,8 +641,8 @@
       total_supply: 4096,
       total_minted: 0,
       current_phase: 1,
-      phase_label: 'Phase 1 — Developer Open',
-      agents_only: false,
+      phase_label: 'Phase 1 — Agents Only',
+      agents_only: true,
       contract_address: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
       registry_address: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
     };

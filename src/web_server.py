@@ -499,8 +499,8 @@ def _parse_cast_generation_output(stdout: str) -> list:
 # ── New API endpoints ──────────────────────────────────────────────────────────
 
 PHASE_CONFIG = {
-    0: {"label": "Phase 1 — Developer Open", "supply": 1024, "agents_only": False,
-        "description": "Open to human developers and AI agents. One per wallet."},
+    0: {"label": "Phase 1 — Agents Only", "supply": 1024, "agents_only": True,
+        "description": "ERC-8004 verified agents only. This is the first enforced agents-only NFT mint. Human minting opens in Phase 3."},
     1: {"label": "Phase 2 — Agents Only", "supply": 1536, "agents_only": True,
         "description": "ERC-8004 verified agents only. First enforced agents-only mint."},
     2: {"label": "Phase 3 — Public", "supply": 1024, "agents_only": False,
