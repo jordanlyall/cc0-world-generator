@@ -1,0 +1,31 @@
+{
+  "evidence_id": "evid:cc0:loot:2026-02-19",
+  "universe": "Loot (for Adventurers)",
+  "license": "CC0-inferred",
+  "confidence": "medium",
+  "captured": "2026-02-19",
+  "declaration": {
+    "source": "Loot project website",
+    "url": "https://www.lootproject.com/faq",
+    "date": "2021",
+    "author": "dom hofmann / Loot community",
+    "text": "Feel free to use Loot in any way you want.",
+    "scope": "All Loot content — items, text, generated bags"
+  },
+  "supporting": [
+    {
+      "source": "Launch tweet",
+      "url": "https://x.com/dhof/status/1431316631934967815",
+      "date": "2021-08-27",
+      "note": "'intentionally omitted for others to interpret' — strong open-use intent, not a formal CC0 declaration"
+    },
+    {
+      "source": "Smart contract",
+      "url": "https://etherscan.io/address/0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7#code",
+      "note": "SPDX: MIT license on Solidity code only. No content CC0 declaration in contract."
+    }
+  ],
+  "risk_flags": ["risk:governance:loot:no_formal_cc0:medium"],
+  "risk_notes": "No explicit CC0 declaration found from dom hofmann for the NFT content itself. 'Feel free to use in any way you want' is strong intent and has been acted on by a large builder community without challenge, but it is not a formal CC0 waiver. Contract is MIT (code only). Commercial confidence should be medium, not high, when citing Loot assets.",
+  "notes": "Loot is widely treated as CC0 by the builder community and dom has not contested any derivatives. The risk is legal — 'feel free to use' is not a copyright waiver. Include with medium confidence and document the distinction. Do not represent as formally CC0."
+}

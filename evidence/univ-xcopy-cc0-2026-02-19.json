@@ -1,0 +1,34 @@
+{
+  "evidence_id": "evid:cc0:xcopy:2026-02-19",
+  "universe": "XCOPY",
+  "license": "CC0-1.0",
+  "confidence": "high",
+  "captured": "2026-02-19",
+  "declaration": {
+    "source": "Twitter / X",
+    "url": "https://x.com/XCOPYART/status/1554112748816109569",
+    "date": "2022-08-01",
+    "author": "XCOPYART",
+    "text": "… so I'm going to go 'all in' and apply CC0 all my existing art ✨",
+    "scope": "All existing and future solo non-collaborative works"
+  },
+  "supporting": [
+    {
+      "source": "OpenSea blog",
+      "url": "https://opensea.io/blog/articles/xcopy",
+      "note": "Confirms XCOPY retroactively applied CC0 to all prior solo work in 2022"
+    },
+    {
+      "source": "a16z crypto",
+      "url": "https://a16zcrypto.com/posts/article/cc0-nft-creative-commons-zero-license-rights/",
+      "note": "XCOPY cited as prominent CC0 adopter in NFT space"
+    }
+  ],
+  "exclusions": [
+    "Collaborative works are explicitly excluded from the CC0 declaration",
+    "Derivative works by XCOPY of others' IP are excluded"
+  ],
+  "risk_flags": ["risk:trademark:xcopy:medium"],
+  "risk_notes": "XCOPY as an artist identity has brand recognition. Use visual primitives (glitch, decay, fragmentation) rather than 'XCOPY' as an in-world proper noun or attribution.",
+  "notes": "Primary source is the August 1, 2022 tweet. Declaration is clear and unambiguous for solo works. High confidence — no governance ambiguity."
+}

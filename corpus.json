@@ -44,6 +44,24 @@
       "evidence_id": "evid:cc0:racc00ns:2026-02-18",
       "risk_flags": [],
       "notes": "Self-declared CC0 by Jordan Lyall (copyright holder). Raccoon-inspired humanoids: dark facial mask marking, ringed tail, nimble forager builds. Earth tones and shadow palette — deep charcoal, warm brown, occasional flash of amber or green eye-shine. Characters are nocturnal, opportunistic, highly adaptable — trickster-adjacent but pragmatic rather than chaotic. Scavenger aesthetic: repurposed materials, jury-rigged gear, nothing wasted. High confidence — no ambiguity."
+    },
+    {
+      "id": "univ:xcopy",
+      "name": "XCOPY",
+      "kind": "nft_collection",
+      "license": "CC0-1.0",
+      "evidence_id": "evid:cc0:xcopy:2026-02-19",
+      "risk_flags": ["risk:trademark:xcopy:medium"],
+      "notes": "Digital glitch art: fragmented figures rendered in high-contrast palette — neon against void, signal against static. Forms feel corrupted mid-transmission: skull motifs, hollow eyes, screaming mouths frozen open. No continuous line work — images read as artifacts, as if the file is decaying while you watch. Palette runs black and white as base with single aggressive color injection: acid green, hot pink, emergency red. Death, screens, and commodity culture are the recurring themes — characters are witnesses, not actors. Emotional register is flat affect over dread: no sentimentality, no resolution. CC0 explicitly declared by XCOPYART (Twitter, Aug 1 2022) for all existing and future solo non-collaborative works. Trademark risk medium: use the visual grammar (glitch, fragmentation, decay), not 'XCOPY' as an in-world proper noun."
+    },
+    {
+      "id": "univ:loot",
+      "name": "Loot (for Adventurers)",
+      "kind": "nft_collection",
+      "license": "CC0-inferred",
+      "evidence_id": "evid:cc0:loot:2026-02-19",
+      "risk_flags": ["risk:governance:loot:no_formal_cc0:medium"],
+      "notes": "Text-only primitives: each token is a list of eight fantasy equipment items — weapon, chest armor, head armor, waist armor, foot armor, hand armor, neck item, ring — rendered as black text on black background, no images. The items are the world: 'Grimoire,' 'Holy Chestplate of the Fox,' 'Dragon's Crown of Skill.' No character, no art, no lore — the model must generate all of it from the item names alone. Aesthetic is maximalist noun-stacking in minimal form. The community interprets Loot as CC0 based on intentional omission of lore ('left for others to interpret') and a permissive FAQ. No formal CC0 declaration exists from dom hofmann. Medium confidence — treat as CC0 in practice, surface the flag in compliance manifests."
     }
   ]
 }
