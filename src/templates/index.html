@@ -176,6 +176,7 @@
       transition: opacity 0.3s, border-color 0.3s;
     }
     .mint-path.dim { opacity: 0.35; }
+    .mint-path.primary { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
     .mint-path h3 {
       font-family: var(--mono);
       font-size: 0.75rem;
@@ -618,9 +619,9 @@
   <section class="hero">
     <h1>Every world has a<br>creator on-chain.</h1>
     <p>
-      Worldkit tokens are agent identity primitives. Mint one and your token becomes an
-      on-chain wallet — your worlds cite it, your provenance accumulates, your creative
-      history lives forever on Base.
+      Mint a Worldkit token and your creative history starts. Every world you generate
+      cites it. Every world adds to it. Nouns enforcers, CrypToadz detectives, mfer
+      alchemists — all yours, all on-chain, forever.
     </p>
     <div class="hero-pills">
       <span class="pill accent">ERC-721</span>
@@ -643,7 +644,7 @@
   <section id="dogfood-section">
     <div class="section-header">
       <h2>Built with Worldkit</h2>
-      <p>Generated on launch day. Token #0847. Provenance lives on Base.</p>
+      <p>From the corpus — One world. Eight CC0 universes. Infinite directions it could have gone.</p>
     </div>
     <div id="dogfood-container"></div>
   </section>
@@ -694,7 +695,7 @@
 </main>
 
 <footer>
-  <span>Worldkit — CC0 character primitives for AI agents</span>
+  <span>Worldkit — endless worlds, permanent authorship, CC0 forever.</span>
   <span id="footer-counter"></span>
   <span>
     <a href="https://github.com/jordanlyall/cc0-world-generator" target="_blank" rel="noopener">GitHub</a>
@@ -743,6 +744,9 @@
   function t(text) { return document.createTextNode(text); }
 
   // ── Mint status ──────────────────────────────────────────────────────────────
+  // ── Phase config: 1 = agents-only, 2 = humans + agents ──
+  const PHASE = 1;
+
   async function loadMintStatus() {
     const cta = document.getElementById('mint-cta');
     let data;
@@ -755,13 +759,13 @@
         total_supply: 4096,
         total_minted: 0,
         current_phase: 0,
-        phase_label: 'Phase 1 — Developer Open',
+        phase_label: 'Phase 1 — Agents Only',
         phase_supply: 1024,
         remaining_in_phase: 1024,
-        mint_price: 'Free',
+        mint_price: '$50 USDC',
         human_eligible: true,
         agent_eligible: true,
-        agents_only: false,
+        agents_only: true,
         contract_address: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
         chain: 'Base'
       };
@@ -784,11 +788,11 @@
     supplyWrap.appendChild(supplyLabel);
     supplyWrap.appendChild(track);
 
-    const humanPath = el('div', {'class': 'mint-path' + (data.agents_only ? ' dim' : '')},
+    const humanPath = el('div', {'class': 'mint-path' + (PHASE === 1 ? ' dim' : '')},
       el('h3', null, t('HUMAN')),
-      el('p', null, t('Connect your wallet, verify developer activity, and mint your token for free. Your token bound account deploys automatically.')),
-      data.agents_only
-        ? el('p', {'class': 'phase-locked-note'}, t('Phase 2 is agents-only via ERC-8004. Phase 3 opens to humans.'))
+      el('p', null, t('Connect your wallet and mint your token for $50 USDC. One token per wallet. Your token bound account deploys automatically.')),
+      PHASE === 1
+        ? el('p', {'class': 'phase-locked-note'}, t('Human minting opens in Phase 2. Phase 1 is agents only via ERC-8004.'))
         : el('a', {'class': 'path-cta', href: '/mint'}, t('Connect wallet →'))
     );
 
@@ -830,15 +834,20 @@
       mcpIcon.textContent = isOpen ? '▶' : '▼';
     });
 
-    const agentPath = el('div', {'class': 'mint-path'});
+    const agentPath = el('div', {'class': 'mint-path' + (PHASE === 1 ? ' primary' : '')});
     agentPath.appendChild(el('h3', null, t('AI AGENT')));
-    agentPath.appendChild(el('p', null, t('Call worldkit_mint via MCP. Your token bound account is auto-deployed. Free MCP access activates immediately.')));
+    agentPath.appendChild(el('p', null, t('Call worldkit_mint via MCP. Your token bound account is auto-deployed. MCP access activates immediately.')));
     agentPath.appendChild(mcpToggle);
     agentPath.appendChild(mcpViewer);
 
     const paths = el('div', {'class': 'mint-paths'});
-    paths.appendChild(humanPath);
-    paths.appendChild(agentPath);
+    if (PHASE === 1) {
+      paths.appendChild(agentPath);
+      paths.appendChild(humanPath);
+    } else {
+      paths.appendChild(humanPath);
+      paths.appendChild(agentPath);
+    }
 
     const x402note = el('p', {'class': 'mint-x402-note'},
       t("Don't hold a token? Pay per call via x402 — "),
@@ -1072,7 +1081,7 @@
         const empty = document.createElement('p');
         empty.style.color = 'var(--muted)';
         empty.style.fontSize = '0.85rem';
-        empty.textContent = 'No worlds generated yet. Try the generator above.';
+        empty.textContent = 'No worlds yet. The corpus is ready. What do you want to build?';
         list.appendChild(empty);
         return;
       }
